@@ -6,9 +6,7 @@
 
 ## 🔴 En cours
 
-| Tâche | Assigné à | Branche | Début | Statut |
-|---|---|---|---|---|
-| Initialisation du repo + structure | Moha | `dev/moha/init-repo` | 2026-02-24 | ✅ Terminé |
+_Aucune tâche en cours pour le moment._
 
 ---
 
@@ -16,13 +14,12 @@
 
 | Tâche | Priorité | Notes |
 |---|---|---|
-| Schéma PostgreSQL — Zone sacrée (Coran, Hadiths, Duas) | 🔴 Haute | Définir toutes les tables avec permissions |
-| Schéma PostgreSQL — Zone applicative (users, progress...) | 🔴 Haute | Auth, favoris, progression |
 | Setup Next.js 14 de base | 🔴 Haute | App Router, TailwindCSS, polices islamiques |
 | Page lecture Coran (affichage sourates + versets) | 🔴 Haute | RTL, police KFGQPC, référence verset |
 | Intégration API AlQuran.cloud | 🔴 Haute | Données SACRÉES — lecture seule |
-| Page horaires de prière | 🟠 Moyenne | Aladhan API, méthode de calcul affichée |
 | Système d'authentification | 🟠 Moyenne | NextAuth.js |
+| Page horaires de prière | 🟠 Moyenne | Aladhan API, méthode de calcul affichée |
+| Script de seed Coran (AlQuran.cloud → BDD) | 🟠 Moyenne | Via API, zone sacrée |
 
 ---
 
@@ -31,6 +28,8 @@
 | Tâche | Par | Date | PR |
 |---|---|---|---|
 | Setup repo GitHub (structure, docs, gitignore) | Moha | 2026-02-24 | — |
+| Schéma PostgreSQL complet (3 zones) | Moha | 2026-02-24 | — |
+| Schéma Prisma complet | Moha | 2026-02-24 | — |
 
 ---
 

@@ -6,9 +6,7 @@
 
 ## 🔴 En cours
 
-| Tâche | Assigné à | Branche | Début | Statut |
-|---|---|---|---|---|
-| Initialisation du repo + structure | Moha | `dev/moha/init-repo` | 2026-02-24 | ✅ Terminé |
+*Rien en cours pour l'instant*
 
 ---
 
@@ -16,21 +14,21 @@
 
 | Tâche | Priorité | Notes |
 |---|---|---|
-| Schéma PostgreSQL — Zone sacrée (Coran, Hadiths, Duas) | 🔴 Haute | Définir toutes les tables avec permissions |
-| Schéma PostgreSQL — Zone applicative (users, progress...) | 🔴 Haute | Auth, favoris, progression |
-| Setup Next.js 14 de base | 🔴 Haute | App Router, TailwindCSS, polices islamiques |
-| Page lecture Coran (affichage sourates + versets) | 🔴 Haute | RTL, police KFGQPC, référence verset |
-| Intégration API AlQuran.cloud | 🔴 Haute | Données SACRÉES — lecture seule |
-| Page horaires de prière | 🟠 Moyenne | Aladhan API, méthode de calcul affichée |
-| Système d'authentification | 🟠 Moyenne | NextAuth.js |
+| Setup Next.js 14 de base | 🔴 Haute | App Router, TailwindCSS, polices islamiques (Amiri) |
+| Page lecture Coran (sourates + versets) | 🔴 Haute | RTL, police KFGQPC, référence verset, Bismillah |
+| Intégration API AlQuran.cloud | 🔴 Haute | Données SACRÉES — lecture seule uniquement |
+| Page horaires de prière | 🟠 Moyenne | Aladhan API, afficher la méthode de calcul |
+| Système d'authentification | 🟠 Moyenne | NextAuth.js — email + Google |
+| Lecteur audio récitations | 🟡 Basse | Intégrer avec quran-reader |
 
 ---
 
 ## 🟢 Terminé
 
-| Tâche | Par | Date | PR |
+| Tâche | Par | Date | PR / Branche |
 |---|---|---|---|
-| Setup repo GitHub (structure, docs, gitignore) | Moha | 2026-02-24 | — |
+| Setup repo GitHub (structure, docs) | Moha | 2026-02-24 | `dev/moha/init-repo` |
+| Schéma PostgreSQL complet (BDD) | Bilal | 2026-02-24 | `dev/bilal/schema-bdd` |
 
 ---
 

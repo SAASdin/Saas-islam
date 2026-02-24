@@ -21,6 +21,12 @@
 
 ---
 
+| 2026-02-24 | Architecture BDD | **3 schémas PostgreSQL séparés** (`sacred` / `app` / `media`) — Option A validée par Moha | Moha |
+| 2026-02-24 | Réactions sociales | Réactions halal uniquement : MashAllah, BarakAllah, Ameen, JazakAllah, SubhanAllah — pas de "like" | Moha (idée Bilal) |
+| 2026-02-24 | Badges & Streaks | Système de badges islamiques + streaks inclus dans schéma BDD | Moha (idée Bilal) |
+
+---
+
 ## Questions ouvertes (à décider ensemble)
 
 | # | Question | Proposé par | Statut |
@@ -28,6 +34,7 @@
 | 1 | Quelle est la priorité de la première app ? (Quran App vs Notification Engine ?) | Moha | ⏳ En attente |
 | 2 | Hébergement backend : Railway ou Fly.io ? | Moha | ⏳ En attente |
 | 3 | Auth sociale (Google, Apple) dès le début ou phase 2 ? | Moha | ⏳ En attente |
+| 4 | Qui setup Next.js ? Moha ou Bilal ? | Bilal | ⏳ En attente |
 
 ---
 

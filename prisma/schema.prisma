@@ -1,0 +1,463 @@
+// ============================================================
+// schema.prisma — Saas-islam
+// ORM Prisma — connexion PostgreSQL
+// ⚠️ Les modèles sacrés (Quran*, Hadith*, etc.) sont READ-ONLY
+//    Ne jamais écrire dans ces modèles depuis le code applicatif
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["sacred", "app", "media"]
+}
+
+// ════════════════════════════════════════════
+// 🔒 ZONE SACRÉE — READ ONLY
+// ⚠️ Jamais de create/update/delete sur ces modèles
+// ════════════════════════════════════════════
+
+model QuranSurah {
+  id                  Int    @id @db.SmallInt
+  nameArabic          String @map("name_arabic")
+  nameTransliteration String @map("name_transliteration")
+  nameFrench          String @map("name_french")
+  nameEnglish         String @map("name_english")
+  revelationType      String @map("revelation_type")
+  ayahCount           Int    @map("ayah_count") @db.SmallInt
+  juzStart            Int    @map("juz_start") @db.SmallInt
+  pageMushaf          Int    @map("page_mushaf") @db.SmallInt
+  hasBismillah        Boolean @map("has_bismillah") @default(true)
+
+  ayahs               QuranAyah[]
+
+  @@map("quran_surahs")
+  @@schema("sacred")
+}
+
+model QuranAyah {
+  id               Int    @id @default(autoincrement())
+  surahId          Int    @map("surah_id") @db.SmallInt
+  ayahNumber       Int    @map("ayah_number") @db.SmallInt
+  ayahNumberQuran  Int    @map("ayah_number_quran")
+  textUthmani      String @map("text_uthmani")   // ⚠️ JAMAIS modifier ce champ
+  textSimple       String @map("text_simple")    // ⚠️ JAMAIS modifier ce champ
+  juz              Int    @db.SmallInt
+  hizb             Int    @db.SmallInt
+  rub              Int    @db.SmallInt
+  pageMushaf       Int    @map("page_mushaf") @db.SmallInt
+  sajda            Boolean @default(false)
+  sajdaType        String? @map("sajda_type")
+
+  surah            QuranSurah       @relation(fields: [surahId], references: [id])
+  translations     QuranTranslation[]
+  tafsirs          QuranTafsir[]
+  wordByWord       QuranWordByWord[]
+  memorizations    UserQuranMemorization[]
+
+  @@unique([surahId, ayahNumber])
+  @@map("quran_ayahs")
+  @@schema("sacred")
+}
+
+model QuranTranslation {
+  id              Int    @id @default(autoincrement())
+  ayahId          Int    @map("ayah_id")
+  languageCode    String @map("language_code") @db.Char(2)
+  translatorName  String @map("translator_name")
+  translatorKey   String @map("translator_key")
+  translation     String                              // ⚠️ Traduction validée — READ ONLY
+  isValidated     Boolean @map("is_validated") @default(true)
+
+  ayah            QuranAyah @relation(fields: [ayahId], references: [id])
+
+  @@unique([ayahId, translatorKey])
+  @@map("quran_translations")
+  @@schema("sacred")
+}
+
+model QuranTafsir {
+  id          Int    @id @default(autoincrement())
+  ayahId      Int    @map("ayah_id")
+  tafsirName  String @map("tafsir_name")
+  tafsirKey   String @map("tafsir_key")
+  languageCode String @map("language_code") @db.Char(2) @default("ar")
+  content     String                                  // ⚠️ Tafsir — READ ONLY
+
+  ayah        QuranAyah @relation(fields: [ayahId], references: [id])
+
+  @@unique([ayahId, tafsirKey])
+  @@map("quran_tafsirs")
+  @@schema("sacred")
+}
+
+model QuranWordByWord {
+  id                   Int    @id @default(autoincrement())
+  ayahId               Int    @map("ayah_id")
+  wordPosition         Int    @map("word_position") @db.SmallInt
+  wordArabic           String @map("word_arabic")   // ⚠️ READ ONLY
+  wordTransliteration  String? @map("word_transliteration")
+  translationEn        String? @map("translation_en")
+  translationFr        String? @map("translation_fr")
+  rootArabic           String? @map("root_arabic")
+  grammarType          String? @map("grammar_type")
+
+  ayah                 QuranAyah @relation(fields: [ayahId], references: [id])
+
+  @@unique([ayahId, wordPosition])
+  @@map("quran_word_by_word")
+  @@schema("sacred")
+}
+
+model HadithCollection {
+  id            Int    @id @default(autoincrement())
+  nameArabic    String @map("name_arabic")
+  nameFrench    String @map("name_french")
+  nameEnglish   String @map("name_english")
+  author        String
+  collectionKey String @map("collection_key") @unique
+  totalHadiths  Int?   @map("total_hadiths")
+
+  hadiths       Hadith[]
+
+  @@map("hadith_collections")
+  @@schema("sacred")
+}
+
+model Hadith {
+  id              Int    @id @default(autoincrement())
+  collectionId    Int    @map("collection_id")
+  hadithNumber    String @map("hadith_number")
+  textArabic      String @map("text_arabic")   // ⚠️ Matn arabe — READ ONLY
+  textFrench      String? @map("text_french")
+  textEnglish     String? @map("text_english")
+  isnadArabic     String? @map("isnad_arabic")
+  grade           String?
+  gradeSource     String? @map("grade_source")
+  reference       String
+
+  collection      HadithCollection @relation(fields: [collectionId], references: [id])
+
+  @@unique([collectionId, hadithNumber])
+  @@map("hadiths")
+  @@schema("sacred")
+}
+
+model Dua {
+  id              Int    @id @default(autoincrement())
+  category        String
+  subcategory     String?
+  titleArabic     String @map("title_arabic")
+  titleFrench     String @map("title_french")
+  textArabic      String @map("text_arabic")   // ⚠️ READ ONLY
+  transliteration String
+  translationFr   String @map("translation_fr")
+  source          String
+  displayOrder    Int    @map("display_order") @default(0)
+
+  @@map("duas")
+  @@schema("sacred")
+}
+
+model AllahName {
+  id                  Int    @id @db.SmallInt
+  nameArabic          String @map("name_arabic")    // ⚠️ READ ONLY
+  nameTransliteration String @map("name_transliteration")
+  nameFrench          String @map("name_french")
+  nameEnglish         String @map("name_english")
+  meaningFrench       String @map("meaning_french")
+  meaningEnglish      String @map("meaning_english")
+  quranOccurrence     String? @map("quran_occurrence")
+
+  @@map("allah_names")
+  @@schema("sacred")
+}
+
+model Matn {
+  id              Int    @id @default(autoincrement())
+  categoryId      Int    @map("category_id")
+  titleArabic     String @map("title_arabic")
+  titleFrench     String @map("title_french")
+  authorFrench    String @map("author_french")
+  totalLines      Int?   @map("total_lines")
+  difficultyLevel Int?   @map("difficulty_level") @db.SmallInt
+  textKey         String @map("text_key") @unique
+
+  lines           MatnLine[]
+  memorizations   UserMutunMemorization[]
+
+  @@map("mutun")
+  @@schema("sacred")
+}
+
+model MatnLine {
+  id              Int    @id @default(autoincrement())
+  matnId          Int    @map("matn_id")
+  lineNumber      Int    @map("line_number")
+  textArabic      String @map("text_arabic")   // ⚠️ READ ONLY
+  transliteration String?
+  translationFr   String? @map("translation_fr")
+  chapterNameFr   String? @map("chapter_name_fr")
+
+  matn            Matn  @relation(fields: [matnId], references: [id])
+  memorizations   UserMutunMemorization[]
+
+  @@unique([matnId, lineNumber])
+  @@map("mutun_lines")
+  @@schema("sacred")
+}
+
+// ════════════════════════════════════════════
+// 🔓 ZONE APPLICATIVE — LECTURE/ÉCRITURE
+// ════════════════════════════════════════════
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  username      String?  @unique
+  displayName   String?  @map("display_name")
+  avatarUrl     String?  @map("avatar_url")
+  bio           String?
+  countryCode   String?  @map("country_code") @db.Char(2)
+  languagePref  String   @map("language_pref") @db.Char(2) @default("fr")
+  role          String   @default("user")
+  isActive      Boolean  @map("is_active") @default(true)
+  isVerified    Boolean  @map("is_verified") @default(false)
+  createdAt     DateTime @map("created_at") @default(now())
+  updatedAt     DateTime @map("updated_at") @updatedAt
+  lastSeenAt    DateTime? @map("last_seen_at")
+
+  auth          UserAuth[]
+  settings      UserSettings?
+  quranProgress UserQuranProgress[]
+  memorizations UserQuranMemorization[]
+  mutunMemo     UserMutunMemorization[]
+  favorites     UserFavorite[]
+  notes         UserNote[]
+  posts         SocialPost[]
+  comments      SocialComment[]
+  following     SocialFollow[] @relation("Follower")
+  followers     SocialFollow[] @relation("Following")
+  enrollments   AcademyEnrollment[]
+
+  @@map("users")
+  @@schema("app")
+}
+
+model UserAuth {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  provider    String
+  providerId  String   @map("provider_id")
+  email       String?
+  createdAt   DateTime @map("created_at") @default(now())
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("user_auth")
+  @@schema("app")
+}
+
+model UserSettings {
+  userId              String  @id @map("user_id") @db.Uuid
+  quranFont           String  @map("quran_font") @default("kfgqpc")
+  quranFontSize       Int     @map("quran_font_size") @db.SmallInt @default(24)
+  quranTranslationKey String? @map("quran_translation_key")
+  quranTafsirKey      String? @map("quran_tafsir_key")
+  showTransliteration Boolean @map("show_transliteration") @default(false)
+  prayerMethod        String  @map("prayer_method") @default("mwl")
+  prayerMadhab        String  @map("prayer_madhab") @default("shafi")
+  prayerCity          String? @map("prayer_city")
+  theme               String  @default("light")
+  languageUi          String  @map("language_ui") @db.Char(2) @default("fr")
+  notifPrayer         Boolean @map("notif_prayer") @default(true)
+  notifAyahDay        Boolean @map("notif_ayah_day") @default(true)
+  updatedAt           DateTime @map("updated_at") @updatedAt
+
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+  @@schema("app")
+}
+
+model UserQuranProgress {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  surahId       Int      @map("surah_id") @db.SmallInt
+  ayahId        Int      @map("ayah_id")
+  lastReadAt    DateTime @map("last_read_at") @default(now())
+  isBookmarked  Boolean  @map("is_bookmarked") @default(false)
+
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, surahId])
+  @@map("user_quran_progress")
+  @@schema("app")
+}
+
+model UserQuranMemorization {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  ayahId          Int      @map("ayah_id")
+  status          String   @default("learning")
+  easinessFactor  Decimal  @map("easiness_factor") @db.Decimal(4,2) @default(2.5)
+  intervalDays    Int      @map("interval_days") @db.SmallInt @default(1)
+  repetitions     Int      @db.SmallInt @default(0)
+  nextReviewAt    DateTime @map("next_review_at") @db.Date @default(now())
+  lastReviewedAt  DateTime? @map("last_reviewed_at")
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ayah            QuranAyah @relation(fields: [ayahId], references: [id])
+
+  @@unique([userId, ayahId])
+  @@map("user_quran_memorization")
+  @@schema("app")
+}
+
+model UserMutunMemorization {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  matnId          Int      @map("matn_id")
+  lineId          Int      @map("line_id")
+  status          String   @default("learning")
+  easinessFactor  Decimal  @map("easiness_factor") @db.Decimal(4,2) @default(2.5)
+  intervalDays    Int      @map("interval_days") @db.SmallInt @default(1)
+  repetitions     Int      @db.SmallInt @default(0)
+  nextReviewAt    DateTime @map("next_review_at") @db.Date @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matn            Matn     @relation(fields: [matnId], references: [id])
+  line            MatnLine @relation(fields: [lineId], references: [id])
+
+  @@unique([userId, lineId])
+  @@map("user_mutun_memorization")
+  @@schema("app")
+}
+
+model UserFavorite {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  contentType String   @map("content_type")
+  contentId   Int      @map("content_id")
+  note        String?
+  createdAt   DateTime @map("created_at") @default(now())
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentType, contentId])
+  @@map("user_favorites")
+  @@schema("app")
+}
+
+model UserNote {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  contentType String   @map("content_type")
+  contentId   Int      @map("content_id")
+  noteText    String   @map("note_text")
+  isPrivate   Boolean  @map("is_private") @default(true)
+  createdAt   DateTime @map("created_at") @default(now())
+  updatedAt   DateTime @map("updated_at") @updatedAt
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_notes")
+  @@schema("app")
+}
+
+model SocialPost {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  contentText   String?  @map("content_text")
+  contentType   String   @map("content_type") @default("text")
+  sharedAyahId  Int?     @map("shared_ayah_id")
+  sharedHadithId Int?    @map("shared_hadith_id")
+  mediaUrl      String?  @map("media_url")
+  thumbnailUrl  String?  @map("thumbnail_url")
+  status        String   @default("pending")
+  likesCount    Int      @map("likes_count") @default(0)
+  commentsCount Int      @map("comments_count") @default(0)
+  viewsCount    Int      @map("views_count") @default(0)
+  createdAt     DateTime @map("created_at") @default(now())
+  updatedAt     DateTime @map("updated_at") @updatedAt
+  isDeleted     Boolean  @map("is_deleted") @default(false)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments      SocialComment[]
+
+  @@map("social_posts")
+  @@schema("app")
+}
+
+model SocialComment {
+  id          String   @id @default(uuid()) @db.Uuid
+  postId      String   @map("post_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  parentId    String?  @map("parent_id") @db.Uuid
+  contentText String   @map("content_text")
+  status      String   @default("pending")
+  likesCount  Int      @map("likes_count") @default(0)
+  createdAt   DateTime @map("created_at") @default(now())
+  isDeleted   Boolean  @map("is_deleted") @default(false)
+
+  post        SocialPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      SocialComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     SocialComment[] @relation("CommentReplies")
+
+  @@map("social_comments")
+  @@schema("app")
+}
+
+model SocialFollow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @map("created_at") @default(now())
+
+  follower    User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@map("social_follows")
+  @@schema("app")
+}
+
+model AcademyCourse {
+  id          String   @id @default(uuid()) @db.Uuid
+  titleFr     String   @map("title_fr")
+  descriptionFr String? @map("description_fr")
+  domain      String
+  level       String
+  language    String   @db.Char(2) @default("fr")
+  isPublished Boolean  @map("is_published") @default(false)
+  isFree      Boolean  @map("is_free") @default(true)
+  priceCents  Int      @map("price_cents") @default(0)
+  createdAt   DateTime @map("created_at") @default(now())
+  updatedAt   DateTime @map("updated_at") @updatedAt
+
+  enrollments AcademyEnrollment[]
+
+  @@map("academy_courses")
+  @@schema("app")
+}
+
+model AcademyEnrollment {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  courseId    String   @map("course_id") @db.Uuid
+  enrolledAt  DateTime @map("enrolled_at") @default(now())
+  completedAt DateTime? @map("completed_at")
+  progressPct Int      @map("progress_pct") @db.SmallInt @default(0)
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      AcademyCourse @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("academy_enrollments")
+  @@schema("app")
+}

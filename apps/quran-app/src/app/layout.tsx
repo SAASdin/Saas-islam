@@ -1,3 +1,6 @@
+/* eslint-disable @next/next/no-page-custom-font */
+// Polices islamiques chargées via <link> — App Router (pas Pages Router)
+// La règle no-page-custom-font est désactivée : elle vise _document.js (Pages Router)
 import type { Metadata } from 'next'
 import './globals.css'
 

@@ -74,15 +74,15 @@ jobs:
 
       # ── Tests d'intégrité ─────────────────────────────────
       - name: 🧪 Tests d'intégrité Coran
-        run: npm run test:ci -- --testPathPattern="quran-integrity"
+        run: npm run test:ci -- --testPathPatterns "quran-integrity"
         timeout-minutes: 5
 
       - name: 🧪 Tests d'intégrité Hadiths
-        run: npm run test:ci -- --testPathPattern="hadith-integrity"
+        run: npm run test:ci -- --testPathPatterns "hadith-integrity"
         timeout-minutes: 3
 
       - name: 🧪 Tests d'intégrité Affichage
-        run: npm run test:ci -- --testPathPattern="display-integrity"
+        run: npm run test:ci -- --testPathPatterns "display-integrity"
         timeout-minutes: 2
 
       # ── Rapport ───────────────────────────────────────────

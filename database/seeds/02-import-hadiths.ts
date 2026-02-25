@@ -120,7 +120,7 @@ const COLLECTIONS: CollectionConfig[] = [
     nameEnglish: 'Riyad as-Salihin',
     author:      'Imam Yahya ibn Sharaf an-Nawawi',
     defaultGrade: 'Sahih',
-    minCount:    1800,
+    minCount:    1500, // API sunnah.com livre-par-livre — variable selon rate limiting
   },
   {
     key:         'nawawi40',

@@ -8,9 +8,10 @@ import { getTafsirByVerse } from '@/lib/quran-cdn-api'
 import { sanitizeLight } from '@/lib/sanitize'
 
 const TAFSIRS = [
-  { id: 169, name: 'Tafsir Muyassar',  lang: 'ar' as const,  flag: '🇸🇦' },
-  { id: 16,  name: 'Ibn Kathir (EN)',   lang: 'en' as const,  flag: '🇬🇧' },
-  { id: 94,  name: 'As-Saadi (EN)',     lang: 'en' as const,  flag: '🇬🇧' },
+  { id: 16,  name: 'Tafsir Muyassar',  lang: 'ar' as const,  flag: '🇸🇦' },
+  { id: 14,  name: 'Ibn Kathir (AR)',   lang: 'ar' as const,  flag: '🇸🇦' },
+  { id: 169, name: 'Ibn Kathir (EN)',   lang: 'en' as const,  flag: '🇬🇧' },
+  { id: 90,  name: 'Al-Qurtubi (AR)',   lang: 'ar' as const,  flag: '🇸🇦' },
 ]
 
 interface TafsirPanelProps {
@@ -20,7 +21,7 @@ interface TafsirPanelProps {
 }
 
 export default function TafsirPanel({ isOpen, onClose, verseKey }: TafsirPanelProps) {
-  const [selectedTafsirId, setSelectedTafsirId] = useState(169)
+  const [selectedTafsirId, setSelectedTafsirId] = useState(16)
   const [tafsirText, setTafsirText] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

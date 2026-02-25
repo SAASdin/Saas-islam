@@ -21,9 +21,12 @@ const THEME_OPTIONS: { value: Theme; label: string; bg: string; text: string }[]
 const SPEED_OPTIONS: PlaybackSpeed[] = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
 const TRANSLATION_OPTIONS = [
-  { id: 131, label: 'Hamidullah (FR)' },
-  { id: 85,  label: 'ClearQuran (FR)' },
-  { id: 20,  label: 'Saheeh International (EN)' },
+  { id: 31,  label: '🇫🇷 Hamidullah (FR)' },
+  { id: 136, label: '🇫🇷 Montada Islamic Foundation (FR)' },
+  { id: 779, label: '🇫🇷 Rashid Maash (FR)' },
+  { id: 20,  label: '🇬🇧 Saheeh International (EN)' },
+  { id: 85,  label: '🇬🇧 Abdel Haleem (EN)' },
+  { id: 84,  label: '🇬🇧 T. Usmani (EN)' },
 ]
 
 export default function SettingsPage() {

@@ -66,6 +66,21 @@ interface SettingsState {
   setLanguage: (l: AppLanguage) => void
 }
 
+// Migration : corrige les anciens IDs incorrects en localStorage
+if (typeof window !== 'undefined') {
+  try {
+    const raw = localStorage.getItem('noorapp-settings-v1')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      const state = parsed?.state
+      if (state?.primaryTranslation === 131) state.primaryTranslation = 31
+      if (state?.reciterSlug === 'ar.alafasy') state.reciterSlug = 'Alafasy_128kbps'
+      if (state?.selectedTafsirId === 169) state.selectedTafsirId = 16
+      localStorage.setItem('noorapp-settings-v1', JSON.stringify(parsed))
+    }
+  } catch { /* ignore */ }
+}
+
 export const useSettings = create<SettingsState>()(
   persist(
     (set) => ({
@@ -75,10 +90,10 @@ export const useSettings = create<SettingsState>()(
       showTajweed: false,
       showWordByWord: false,
       showTransliteration: false,
-      primaryTranslation: 131,  // Hamidullah FR
+      primaryTranslation: 31,   // Hamidullah FR (id correct)
       secondaryTranslation: null,
       showTranslation: true,
-      selectedTafsirId: 169,    // Muyassar AR
+      selectedTafsirId: 16,     // Tafsir Muyassar AR (id correct)
       showTafsir: false,
       tafsirPosition: 'sidebar',
       reciterId: 7,

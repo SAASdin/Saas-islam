@@ -53,10 +53,11 @@ export default function AyahCardV2({
 
   const [surahNum, ayahNum] = verseKey.split(':').map(Number)
 
-  // Traduction principale (FR Hamidullah)
+  // Traduction principale — cherche l'ID configuré, sinon le premier FR, sinon le premier disponible
   const mainTranslation = translations?.find(t => t.resource_id === primaryTranslation)
-  const enTranslation = translations?.find(t => t.resource_id === 20)
-  const displayTranslation = mainTranslation ?? enTranslation
+  const frTranslation = translations?.find(t => [31, 136, 779].includes(t.resource_id))
+  const enTranslation = translations?.find(t => [20, 85, 84].includes(t.resource_id))
+  const displayTranslation = mainTranslation ?? frTranslation ?? enTranslation ?? translations?.[0]
 
   const isThisPlaying = currentVerse === verseKey && isPlaying
 

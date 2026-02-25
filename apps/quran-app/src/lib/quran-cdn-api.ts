@@ -83,11 +83,14 @@ export interface QdcSearchResult {
 
 // ── Constantes ───────────────────────────────────────────────
 
-/** IDs traductions validés */
+/** IDs traductions validés — source : /api/qdc/resources/translations */
 export const TRANSLATIONS = {
-  hamidullah_fr: 131,  // Hamidullah (FR) — validé
-  clearquran_fr: 85,   // ClearQuran (FR)
+  hamidullah_fr: 31,   // Muhammad Hamidullah (FR) — slug: quran.fr.hamidullah
+  montada_fr: 136,     // Montada Islamic Foundation (FR)
+  rashid_fr: 779,      // Rashid Maash (FR)
   saheeh_en: 20,       // Saheeh International (EN)
+  haleem_en: 85,       // M.A.S. Abdel Haleem (EN)
+  usmani_en: 84,       // T. Usmani (EN)
 } as const
 
 /** Récitateurs principaux (id = audio_recitation id sur qurancdn) */
@@ -102,11 +105,13 @@ export const RECITERS = [
 
 export type ReciterEntry = typeof RECITERS[number]
 
-/** IDs tafsir validés */
+/** IDs tafsir validés — source : /api/qdc/resources/tafsirs */
 export const TAFSIRS = [
-  { id: 169, name: 'Tafsir Muyassar',   lang: 'ar' as const },
-  { id: 16,  name: 'Ibn Kathir (EN)',   lang: 'en' as const },
-  { id: 94,  name: 'As-Saadi (EN)',     lang: 'en' as const },
+  { id: 16,  name: 'Tafsir Muyassar',     lang: 'ar' as const },  // التفسير الميسر
+  { id: 14,  name: 'Ibn Kathir (AR)',      lang: 'ar' as const },  // تفسیر ابنِ کثیر
+  { id: 169, name: 'Ibn Kathir (EN)',      lang: 'en' as const },  // Ibn Kathir Abridged
+  { id: 90,  name: 'Al-Qurtubi (AR)',      lang: 'ar' as const },  // تفسير القرطبي
+  { id: 15,  name: 'Al-Tabari (AR)',       lang: 'ar' as const },  // تفسير الطبري
 ] as const
 
 // ── Utilitaires audio ────────────────────────────────────────

@@ -1,0 +1,130 @@
+# ============================================================
+# pr-check-sacred.yml — Protection des données islamiques sacrées
+# Se déclenche quand une PR modifie des fichiers sensibles
+# ⚠️  ZONE SACRÉE : toute modification nécessite 2 approvals
+# ============================================================
+
+name: 🛡️ Protection Données Sacrées
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'database/seeds/**'
+      - 'database/integrity/**'
+      - 'prisma/schema.prisma'
+      - 'database/migrations/**'
+
+jobs:
+  sacred-data-check:
+    name: ⚠️ Vérification Zone Sacrée
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # ── Détecter les fichiers modifiés ───────────────────────
+      - name: 🔍 Analyser les fichiers modifiés
+        id: changed-files
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            database/seeds/**
+            database/integrity/**
+            prisma/schema.prisma
+            database/migrations/**
+
+      # ── Poster le commentaire d'alerte ───────────────────────
+      - name: 💬 Poster commentaire d'alerte sur la PR
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changedFiles = `${{ steps.changed-files.outputs.all_changed_files }}`.split(' ').join('\n- ');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ⚠️ DONNÉES SACRÉES MODIFIÉES
+
+Cette PR touche à des **données islamiques** (Coran, Hadiths, schéma base de données).
+
+**Validation des deux collaborateurs (Moha ET Bilal) obligatoire avant merge.**
+
+### Fichiers concernés
+\`\`\`
+- ${changedFiles}
+\`\`\`
+
+### Checklist obligatoire pour les reviewers
+- [ ] Aucun texte arabe modifié ou altéré
+- [ ] Aucun \`INSERT / UPDATE / DELETE\` non autorisé sur les tables sacrées
+- [ ] Les hashes SHA-256 dans \`database/integrity/\` sont cohérents
+- [ ] Les tests d'intégrité (\`npm run test:integrity\`) passent localement
+
+> **وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ** — Cette règle est non-négociable.`
+            });
+
+      # ── Ajouter le label sacred-data-review ─────────────────
+      - name: 🏷️ Ajouter le label "sacred-data-review"
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Créer le label s'il n'existe pas
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'sacred-data-review',
+                color: '006400',
+                description: '⚠️ PR modifiant des données islamiques sacrées — 2 approvals requis'
+              });
+            } catch (e) {
+              // Label existe déjà — pas un problème
+            }
+
+            // Appliquer le label à la PR
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['sacred-data-review']
+            });
+
+      # ── Vérifier les hashes d'intégrité ─────────────────────
+      - name: 🔐 Vérifier cohérence des hashes
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Vérification de la présence des fichiers de hashes..."
+
+          if [ -f "database/integrity/quran-hashes.json" ]; then
+            QURAN_COUNT=$(cat database/integrity/quran-hashes.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d))")
+            echo "✅ quran-hashes.json : $QURAN_COUNT entrées"
+            if [ "$QURAN_COUNT" -ne 6236 ]; then
+              echo "❌ ERREUR : quran-hashes.json devrait contenir 6236 entrées, contient $QURAN_COUNT"
+              exit 1
+            fi
+          else
+            echo "⚠️  database/integrity/quran-hashes.json absent"
+          fi
+
+          if [ -f "database/integrity/hadith-hashes.json" ]; then
+            HADITH_COUNT=$(cat database/integrity/hadith-hashes.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d))")
+            echo "✅ hadith-hashes.json : $HADITH_COUNT entrées"
+            if [ "$HADITH_COUNT" -lt 36000 ]; then
+              echo "❌ ERREUR : hadith-hashes.json devrait contenir ≥ 36000 entrées, contient $HADITH_COUNT"
+              exit 1
+            fi
+          else
+            echo "⚠️  database/integrity/hadith-hashes.json absent"
+          fi
+
+          echo "✅ Hashes d'intégrité cohérents"

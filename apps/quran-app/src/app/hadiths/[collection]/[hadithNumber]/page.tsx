@@ -8,7 +8,7 @@
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getHadith, getCollectionMeta, HADITH_COLLECTIONS, formatHadithRef } from '@/lib/hadith-api'
+import { getHadith, getCollectionMeta, formatHadithRef } from '@/lib/hadith-api'
 import Navigation from '@/components/Navigation'
 import ShareButton from '@/components/hadith/ShareButton'
 import type { Metadata } from 'next'

@@ -7,16 +7,19 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
 
 const NAV_LINKS = [
-  { href: '/',          label: 'Accueil'      },
-  { href: '/surah',     label: 'Coran'        },
-  { href: '/juz/1',     label: 'Juz'          },
-  { href: '/search',    label: 'Recherche'    },
-  { href: '/radio',     label: 'Radio'        },
-  { href: '/reciters',  label: 'Récitateurs'  },
-  { href: '/progress',  label: 'Progression'  },
-  { href: '/memorize',  label: 'Mémoriser'    },
-  { href: '/hadiths',   label: 'Hadiths'      },
-  { href: '/priere',    label: 'Prière'       },
+  { href: '/',            label: 'Accueil'      },
+  { href: '/surah',       label: 'Coran'        },
+  { href: '/mushaf/1',    label: 'Mushaf'       },
+  { href: '/juz/1',       label: 'Juz'          },
+  { href: '/ulum',        label: "'Ulum"        },
+  { href: '/ma3ajim',     label: 'Maʿājim'      },
+  { href: '/search',      label: 'Recherche'    },
+  { href: '/radio',       label: 'Radio'        },
+  { href: '/reciters',    label: 'Récitateurs'  },
+  { href: '/progress',    label: 'Progression'  },
+  { href: '/memorize',    label: 'Mémoriser'    },
+  { href: '/hadiths',     label: 'Hadiths'      },
+  { href: '/priere',      label: 'Prière'       },
 ]
 
 export default function TopNavbar() {

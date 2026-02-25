@@ -50,6 +50,22 @@ export default function SurahHeader({ chapter, showNav = true }: SurahHeaderProp
         </span>
       </div>
 
+      {/* Liens rapides sciences + mushaf */}
+      <div className="flex items-center justify-center gap-2 flex-wrap mt-4">
+        <Link href={`/ulum/${chapter.id}`}
+          className="px-3 py-1.5 bg-white/4 hover:bg-white/10 border border-white/10 rounded-full text-xs text-slate-400 hover:text-white transition-colors">
+          📚 &lsquo;Ulum
+        </Link>
+        <Link href={`/mushaf/${chapter.pages[0]}`}
+          className="px-3 py-1.5 bg-white/4 hover:bg-white/10 border border-white/10 rounded-full text-xs text-slate-400 hover:text-white transition-colors">
+          🕌 Mushaf p.{chapter.pages[0]}
+        </Link>
+        <Link href={`/ma3ajim`}
+          className="px-3 py-1.5 bg-white/4 hover:bg-white/10 border border-white/10 rounded-full text-xs text-slate-400 hover:text-white transition-colors">
+          🔍 Maʿājim
+        </Link>
+      </div>
+
       {/* Navigation prev/next */}
       {showNav && (
         <div className="flex items-center justify-center gap-6 mt-6">

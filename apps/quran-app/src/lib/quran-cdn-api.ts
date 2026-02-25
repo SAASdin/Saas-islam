@@ -277,6 +277,22 @@ export async function getTafsirByVerse(
   return qdcFetch(`/tafsirs/${tafsirId}/by_ayah/${verseKey}`, 86400)
 }
 
+/** Info détaillée d'une sourate (période de révélation, contexte, thèmes) */
+export async function getChapterInfo(
+  chapterId: number
+): Promise<{ chapter_info: { id: number; chapter_id: number; short_text: string; source: string; text: string; language_name: string } }> {
+  return qdcFetch(`/chapters/${chapterId}/info`, 86400 * 30)
+}
+
+/** Chercher les occurrences d'un mot/racine dans le Coran */
+export async function searchWordOccurrences(
+  word: string,
+  size: number = 20
+): Promise<{ result: { verses: Array<{ verse_key: string; words: Array<{ char_type: string; text: string; highlight?: boolean }> }> }; pagination: { total_records: number } }> {
+  const params = new URLSearchParams({ q: word, size: String(size), page: '1' })
+  return qdcFetch(`/search?${params}`, 3600)
+}
+
 /** Liste des 30 juz */
 export async function getJuzs(): Promise<{ juzs: QdcJuz[] }> {
   return qdcFetch('/juzs', 86400 * 30) // immutable — cache 30 jours

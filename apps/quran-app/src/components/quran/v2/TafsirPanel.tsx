@@ -1,94 +1,101 @@
 'use client'
 // ============================================================
-// TafsirPanel.tsx — Panneau Tafsir complet (20 tafsirs)
-// Slide-over depuis la droite
+// TafsirPanel.tsx — Panneau Tafsir complet (29 livres)
+// Sources: spa5k/tafsir_api (GitHub JSON) — données sacrées READ ONLY
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
-import { getTafsirByVerse } from '@/lib/quran-cdn-api'
-import { sanitizeLight } from '@/lib/sanitize'
-import { ALL_TAFSIRS, groupByLanguage } from '@/lib/translations-catalog'
+import {
+  TAFSIR_BOOKS,
+  CATEGORY_LABELS,
+  CATEGORY_ORDER,
+  groupBooksByCategory,
+  fetchTafsirVerse,
+  type TafsirBook,
+  type TafsirCategory,
+} from '@/lib/tafsir-books-api'
 
 interface TafsirPanelProps {
   isOpen: boolean
   onClose: () => void
-  verseKey: string
+  verseKey: string   // ex: "2:255"
 }
 
-const LANG_PRIORITY = ['عربي', 'English', 'اردو', 'বাংলা', 'Русский', 'Kurdish']
+// Livres affichés par défaut dans le panel rapide
+const QUICK_BOOKS = [
+  'ar-tafsir-muyassar',
+  'ar-tafsir-ibn-kathir',
+  'ar-tafseer-al-qurtubi',
+  'ar-tafseer-al-saddi',
+  'ar-tafsir-al-tabari',
+  'en-tafisr-ibn-kathir',
+  'en-tafsir-maarif-ul-quran',
+  'en-asbab-al-nuzul-by-al-wahidi',
+]
+
+const grouped = groupBooksByCategory(TAFSIR_BOOKS)
 
 export default function TafsirPanel({ isOpen, onClose, verseKey }: TafsirPanelProps) {
-  const [selectedTafsirId, setSelectedTafsirId] = useState(16)
+  const [selectedSlug, setSelectedSlug] = useState('ar-tafsir-muyassar')
   const [tafsirText, setTafsirText] = useState<string | null>(null)
-  const [tafsirName, setTafsirName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [cache, setCache] = useState<Record<string, string>>({})
+  const [showAllBooks, setShowAllBooks] = useState(false)
+  const [cache] = useState<Record<string, string | null>>({})
 
-  const grouped = groupByLanguage(ALL_TAFSIRS)
-  const languages = Object.keys(grouped).sort((a, b) => {
-    const ai = LANG_PRIORITY.indexOf(a)
-    const bi = LANG_PRIORITY.indexOf(b)
-    if (ai !== -1 && bi !== -1) return ai - bi
-    if (ai !== -1) return -1
-    if (bi !== -1) return 1
-    return a.localeCompare(b)
-  })
+  const currentBook = TAFSIR_BOOKS.find(b => b.slug === selectedSlug)
+  const isArabic = currentBook?.langCode === 'ar'
+  const isRTL = ['ar', 'ur', 'fa', 'ku'].includes(currentBook?.langCode ?? '')
 
-  const loadTafsir = useCallback((tafsirId: number, key: string) => {
+  const loadTafsir = useCallback(async (slug: string, key: string) => {
     if (!key) return
-    const cacheKey = `${tafsirId}:${key}`
-    if (cache[cacheKey]) {
+    const cacheKey = `${slug}:${key}`
+    if (cacheKey in cache) {
       setTafsirText(cache[cacheKey])
-      setError(null)
+      setError(cache[cacheKey] === null ? 'Non disponible pour ce verset.' : null)
       return
     }
-
     setLoading(true)
     setError(null)
     setTafsirText(null)
 
-    getTafsirByVerse(tafsirId, key)
-      .then(({ tafsir }) => {
-        const clean = sanitizeLight(tafsir.text)
-        setTafsirText(clean)
-        setCache(prev => ({ ...prev, [cacheKey]: clean }))
-      })
-      .catch(() => setError('Tafsir non disponible pour ce verset.'))
-      .finally(() => setLoading(false))
+    const [surah, ayah] = key.split(':').map(Number)
+    const text = await fetchTafsirVerse(slug, surah, ayah)
+    cache[cacheKey] = text
+
+    if (text) {
+      setTafsirText(text)
+    } else {
+      setError('Ce tafsir n\'est pas disponible pour ce verset.')
+    }
+    setLoading(false)
   }, [cache])
 
   useEffect(() => {
     if (!isOpen || !verseKey) return
-    const meta = ALL_TAFSIRS.find(t => t.id === selectedTafsirId)
-    setTafsirName(meta?.name ?? '')
-    loadTafsir(selectedTafsirId, verseKey)
-  }, [isOpen, verseKey, selectedTafsirId, loadTafsir])
+    loadTafsir(selectedSlug, verseKey)
+  }, [isOpen, verseKey, selectedSlug, loadTafsir])
 
-  function selectTafsir(id: number) {
-    setSelectedTafsirId(id)
-    const meta = ALL_TAFSIRS.find(t => t.id === id)
-    setTafsirName(meta?.name ?? '')
+  function selectBook(slug: string) {
+    setSelectedSlug(slug)
   }
-
-  const currentMeta = ALL_TAFSIRS.find(t => t.id === selectedTafsirId)
-  const isArabic = currentMeta?.languageCode === 'ar'
 
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-[2px]" onClick={onClose} />
+        <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-[2px]" onClick={onClose} />
       )}
 
-      <div className={`fixed top-14 right-0 bottom-16 z-40 w-full sm:w-[520px] bg-[#0d1526] border-l border-white/10 flex flex-col transform transition-transform duration-300 ${
+      <div className={`fixed top-14 right-0 bottom-16 z-40 w-full sm:w-[560px] bg-[#0c1322] border-l border-white/10 flex flex-col transform transition-transform duration-300 ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 shrink-0">
           <div>
             <h2 className="text-white font-semibold flex items-center gap-2">
-              <span>📖</span> Tafsir — <span className="text-emerald-400">{verseKey}</span>
+              📖 Tafsir
+              <span className="text-emerald-400 arabic-text text-sm" dir="rtl">{verseKey}</span>
             </h2>
-            <p className="text-slate-500 text-xs mt-0.5">{ALL_TAFSIRS.length} tafsirs disponibles</p>
+            <p className="text-slate-500 text-xs mt-0.5">{TAFSIR_BOOKS.length} livres · spa5k/tafsir_api</p>
           </div>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,35 +104,85 @@ export default function TafsirPanel({ isOpen, onClose, verseKey }: TafsirPanelPr
           </button>
         </div>
 
-        {/* Sélecteur tafsir — toutes les langues */}
-        <div className="border-b border-white/10 shrink-0">
-          <div className="overflow-x-auto">
-            {languages.map(lang => {
-              const items = grouped[lang]
+        {/* ── Sélecteur rapide ── */}
+        <div className="px-3 py-2 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+            {QUICK_BOOKS.map(slug => {
+              const book = TAFSIR_BOOKS.find(b => b.slug === slug)
+              if (!book) return null
               return (
-                <div key={lang} className="flex items-center gap-1 px-3 py-2 min-w-max">
-                  <span className="text-slate-600 text-xs shrink-0 w-16">{items[0]?.flag} {lang}</span>
-                  {items.map(t => (
-                    <button
-                      key={t.id}
-                      onClick={() => selectTafsir(t.id)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                        selectedTafsirId === t.id
-                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                          : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      {t.name.length > 20 ? t.name.slice(0, 18) + '…' : t.name}
-                    </button>
-                  ))}
+                <button
+                  key={slug}
+                  onClick={() => selectBook(slug)}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                    selectedSlug === slug
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
+                      : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {book.flag} {book.authorAr.split(' ')[0]}
+                </button>
+              )
+            })}
+            <button
+              onClick={() => setShowAllBooks(!showAllBooks)}
+              className="shrink-0 px-2.5 py-1.5 rounded-full text-xs bg-white/5 text-slate-500 hover:text-white border border-white/10 hover:border-white/20 transition-all"
+            >
+              {showAllBooks ? '▲ Moins' : '▼ Tous'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Tous les livres (expandable) ── */}
+        {showAllBooks && (
+          <div className="border-b border-white/10 max-h-52 overflow-y-auto shrink-0 bg-black/20">
+            {CATEGORY_ORDER.map(cat => {
+              const books = grouped[cat]
+              if (!books?.length) return null
+              return (
+                <div key={cat} className="px-3 py-2">
+                  <p className="text-[10px] text-slate-600 mb-1.5 font-medium uppercase tracking-wide">
+                    {CATEGORY_LABELS[cat]}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {books.map(book => (
+                      <button
+                        key={book.slug}
+                        onClick={() => { selectBook(book.slug); setShowAllBooks(false) }}
+                        className={`px-2 py-1 rounded-md text-xs transition-all ${
+                          selectedSlug === book.slug
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-white/4 text-slate-400 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        {book.flag} {book.nameAr.split(' ').slice(0, 3).join(' ')}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )
             })}
           </div>
-        </div>
+        )}
 
-        {/* Corps */}
+        {/* ── Corps ── */}
         <div className="flex-1 overflow-y-auto px-5 py-5">
+          {/* En-tête du livre actif */}
+          {currentBook && (
+            <div className="flex items-start gap-3 mb-4 pb-3 border-b border-white/10">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl shrink-0">
+                {currentBook.flag}
+              </div>
+              <div>
+                <p className="text-white font-medium arabic-text text-sm" dir={isRTL ? 'rtl' : 'ltr'}>
+                  {currentBook.nameAr}
+                </p>
+                <p className="text-slate-500 text-xs mt-0.5">{currentBook.authorAr} · {currentBook.died}</p>
+                <p className="text-slate-600 text-xs">{currentBook.volumes} · {currentBook.lang}</p>
+              </div>
+            </div>
+          )}
+
           {loading && (
             <div className="flex items-center justify-center py-16">
               <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
@@ -133,50 +190,41 @@ export default function TafsirPanel({ isOpen, onClose, verseKey }: TafsirPanelPr
           )}
 
           {error && !loading && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-              <p className="text-red-400 text-sm">{error}</p>
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+              <p className="text-amber-400 text-sm">{error}</p>
               <p className="text-slate-600 text-xs mt-1">
-                Ce tafsir n&apos;est peut-être pas disponible pour ce verset spécifique.
+                Essayez un autre tafsir ou vérifiez le numéro du verset.
               </p>
             </div>
           )}
 
           {tafsirText && !loading && (
-            <>
-              {/* En-tête tafsir actif */}
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
-                <span className="text-lg">{currentMeta?.flag}</span>
-                <div>
-                  <p className="text-white font-medium text-sm">{currentMeta?.name}</p>
-                  <p className="text-slate-500 text-xs">{currentMeta?.author} · {currentMeta?.language}</p>
-                </div>
-              </div>
-
-              <p
-                className={`leading-loose text-sm whitespace-pre-line ${
-                  isArabic
-                    ? 'arabic-text text-right text-white/90 text-base'
-                    : 'text-slate-300'
-                }`}
-                dir={isArabic ? 'rtl' : 'ltr'}
-                lang={currentMeta?.languageCode}
-              >
-                {tafsirText}
-              </p>
-            </>
+            <p
+              className={`leading-loose text-sm whitespace-pre-line ${
+                isArabic
+                  ? 'arabic-text text-right text-white/90 text-[1rem] leading-[2.2]'
+                  : 'text-slate-300 leading-relaxed'
+              }`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+              lang={currentBook?.langCode}
+            >
+              {tafsirText}
+            </p>
           )}
         </div>
 
-        {/* Footer — naviguer entre versets */}
+        {/* ── Footer ── */}
         <div className="border-t border-white/10 px-4 py-3 shrink-0 flex items-center justify-between">
-          <p className="text-slate-600 text-xs">{tafsirName}</p>
+          <p className="text-slate-600 text-xs truncate max-w-52">
+            {currentBook?.author} ({currentBook?.died})
+          </p>
           <a
-            href={`https://quran.com/${verseKey.replace(':', '/')}?startingVerse=${verseKey.split(':')[1]}`}
+            href={`https://github.com/spa5k/tafsir_api/tree/main/tafsir/${selectedSlug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-slate-500 hover:text-emerald-400 transition-colors"
+            className="text-xs text-slate-600 hover:text-emerald-400 transition-colors"
           >
-            Quran.com →
+            Source →
           </a>
         </div>
       </div>

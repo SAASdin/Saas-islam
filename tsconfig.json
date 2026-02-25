@@ -11,6 +11,13 @@
     "rootDir": ".",
     "baseUrl": "."
   },
-  "include": ["database/**/*.ts", "prisma/**/*.ts"],
-  "exclude": ["node_modules", "apps"]
+  "include": [
+    "database/**/*.ts",
+    "prisma/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "apps"
+  ]
 }

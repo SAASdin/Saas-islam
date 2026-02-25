@@ -18,15 +18,21 @@
     "db:studio": "prisma studio",
     "db:reset": "echo 'INTERDIT en production — voir docs/CONVENTIONS.md' && exit 1",
     "import:hadiths": "tsx database/seeds/02-import-hadiths.ts",
-    "import:hadiths:dry": "DRY_RUN=true tsx database/seeds/02-import-hadiths.ts"
+    "import:hadiths:dry": "DRY_RUN=true tsx database/seeds/02-import-hadiths.ts",
+    "test:integrity": "jest tests/integrity/ --bail --verbose",
+    "test:integrity:watch": "jest tests/integrity/ --bail --verbose --watch",
+    "test:ci": "jest tests/integrity/ --bail --verbose --forceExit --ci"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "dotenv": "^16.6.1"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.19.33",
+    "jest": "^30.2.0",
     "prisma": "^5.22.0",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 import { getVerse, getChapter, TRANSLATIONS } from '@/lib/quran-cdn-api'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { getVerseText } from '@/lib/quran-cdn-api'
 import AyahCardV2 from '@/components/quran/v2/AyahCardV2'
 import type { Metadata } from 'next'
 
@@ -67,7 +68,7 @@ export default async function VersePage({ params }: Props) {
       <div className="bg-white/3 border border-white/10 rounded-2xl overflow-hidden">
         <AyahCardV2
           verseKey={verseKey}
-          textUthmani={verse.words ? verse.words.map(w => w.text_uthmani).join(' ') : ''}
+          textUthmani={getVerseText(verse)}
           translations={verse.translations}
           words={verse.words}
           surahName={chapter.name_simple}

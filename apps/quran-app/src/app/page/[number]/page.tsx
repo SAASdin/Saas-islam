@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { getVersesByPage, TRANSLATIONS } from '@/lib/quran-cdn-api'
 import { notFound } from 'next/navigation'
+import { getVerseText } from '@/lib/quran-cdn-api'
 import AyahCardV2 from '@/components/quran/v2/AyahCardV2'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -70,7 +71,7 @@ export default async function MushafPageRoute({ params }: Props) {
           <AyahCardV2
             key={verse.verse_key}
             verseKey={verse.verse_key}
-            textUthmani={verse.words ? verse.words.map(w => w.text_uthmani).join(' ') : ''}
+            textUthmani={getVerseText(verse)}
             translations={verse.translations}
             words={verse.words}
             surahName={`Page ${pageNum}`}

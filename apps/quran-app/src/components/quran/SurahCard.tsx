@@ -1,3 +1,4 @@
+'use client'
 // ============================================================
 // SurahCard.tsx — Carte d'une sourate — Design premium dark
 // ⚠️  nameArabic est SACRÉ — affiché tel quel, aucune transformation

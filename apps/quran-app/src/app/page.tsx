@@ -182,24 +182,12 @@ export default async function HomePage() {
           {/* CTA Recherche */}
           <Link
             href="/search"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl text-base font-medium transition-all duration-300 animate-fade-in"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl text-base font-medium transition-all duration-300 animate-fade-in hover:shadow-[0_0_30px_rgba(212,175,55,0.15)]"
             style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(212,175,55,0.3)',
               color: '#f1f5f9',
               backdropFilter: 'blur(8px)',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement
-              el.style.background = 'rgba(212,175,55,0.1)'
-              el.style.borderColor = 'rgba(212,175,55,0.5)'
-              el.style.boxShadow = '0 0 30px rgba(212,175,55,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement
-              el.style.background = 'rgba(255,255,255,0.06)'
-              el.style.borderColor = 'rgba(212,175,55,0.3)'
-              el.style.boxShadow = ''
             }}
           >
             <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,7 +236,7 @@ export default async function HomePage() {
               href={mod.href}
               className={`
                 group block rounded-2xl overflow-hidden
-                transition-all duration-300
+                transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl
                 ${!mod.available ? 'opacity-60 pointer-events-none' : ''}
               `}
               style={{
@@ -256,18 +244,6 @@ export default async function HomePage() {
                 border: '1px solid rgba(255,255,255,0.07)',
                 backdropFilter: 'blur(8px)',
               }}
-              onMouseEnter={mod.available ? (e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = `${mod.accentColor}30`
-                el.style.transform = 'translateY(-3px)'
-                el.style.boxShadow = `0 16px 40px rgba(0,0,0,0.4), 0 0 20px ${mod.accentColor}10`
-              } : undefined}
-              onMouseLeave={mod.available ? (e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(255,255,255,0.07)'
-                el.style.transform = ''
-                el.style.boxShadow = ''
-              } : undefined}
             >
               <div className="p-6">
                 {/* Icon + badge */}

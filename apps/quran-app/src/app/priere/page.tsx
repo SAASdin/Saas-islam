@@ -201,16 +201,6 @@ export default async function PriereHomePage() {
                   border: '1px solid rgba(255,255,255,0.06)',
                   color: '#94a3b8',
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(212,175,55,0.2)'
-                  el.style.color = '#f1f5f9'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,0.06)'
-                  el.style.color = '#94a3b8'
-                }}
                 type="button"
               >
                 <span className="text-xl block mb-1">{c.flag}</span>

@@ -121,20 +121,6 @@ export default function HadithsPage() {
                   border: '1px solid rgba(255,255,255,0.06)',
                   animationDelay: `${index * 50}ms`,
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = `${accent.color}30`
-                  el.style.background = `rgba(17,24,39,0.9)`
-                  el.style.transform = 'translateX(4px)'
-                  el.style.boxShadow = `0 4px 20px rgba(0,0,0,0.3), -3px 0 0 ${accent.color}`
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,0.06)'
-                  el.style.background = 'rgba(17,24,39,0.7)'
-                  el.style.transform = ''
-                  el.style.boxShadow = ''
-                }}
                 aria-label={`Ouvrir la collection ${collection.name}`}
               >
                 {/* Icône */}

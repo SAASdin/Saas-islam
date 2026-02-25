@@ -126,16 +126,6 @@ export default async function SurahPage({ params }: Props) {
                   border: '1px solid rgba(255,255,255,0.08)',
                   color: '#94a3b8',
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(212,175,55,0.3)'
-                  el.style.color = '#d4af37'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,0.08)'
-                  el.style.color = '#94a3b8'
-                }}
               >
                 ← Sourate {surahId - 1}
               </Link>
@@ -154,16 +144,6 @@ export default async function SurahPage({ params }: Props) {
                   background: 'rgba(255,255,255,0.06)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   color: '#94a3b8',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(212,175,55,0.3)'
-                  el.style.color = '#d4af37'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,0.08)'
-                  el.style.color = '#94a3b8'
                 }}
               >
                 Sourate {surahId + 1} →
@@ -255,16 +235,6 @@ export default async function SurahPage({ params }: Props) {
                 border: '1px solid rgba(255,255,255,0.08)',
                 color: '#94a3b8',
               }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(212,175,55,0.3)'
-                el.style.color = '#d4af37'
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(255,255,255,0.08)'
-                el.style.color = '#94a3b8'
-              }}
             >
               ← Sourate {surahId - 1}
             </Link>
@@ -278,16 +248,6 @@ export default async function SurahPage({ params }: Props) {
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 color: '#94a3b8',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(212,175,55,0.3)'
-                el.style.color = '#d4af37'
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(255,255,255,0.08)'
-                el.style.color = '#94a3b8'
               }}
             >
               Sourate {surahId + 1} →

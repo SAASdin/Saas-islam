@@ -174,16 +174,6 @@ export default async function SearchPage({ searchParams }: Props) {
                       background: 'rgba(17,24,39,0.7)',
                       border: '1px solid rgba(255,255,255,0.06)',
                     }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.borderColor = 'rgba(212,175,55,0.2)'
-                      el.style.transform = 'translateX(2px)'
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.borderColor = 'rgba(255,255,255,0.06)'
-                      el.style.transform = ''
-                    }}
                     aria-label={`Aller à la sourate ${match.surah.englishName}, verset ${match.numberInSurah}`}
                   >
                     {/* En-tête résultat */}
@@ -285,16 +275,6 @@ export default async function SearchPage({ searchParams }: Props) {
                     background: 'rgba(17,24,39,0.7)',
                     border: '1px solid rgba(255,255,255,0.08)',
                     color: '#94a3b8',
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = 'rgba(212,175,55,0.3)'
-                    el.style.color = '#d4af37'
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = 'rgba(255,255,255,0.08)'
-                    el.style.color = '#94a3b8'
                   }}
                 >
                   {term}

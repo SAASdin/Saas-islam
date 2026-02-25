@@ -145,18 +145,6 @@ export default function BibliothequeHomePage() {
                     background: 'rgba(17,24,39,0.7)',
                     border: '1px solid rgba(255,255,255,0.06)',
                   }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = `${accentColor}30`
-                    el.style.transform = 'translateY(-3px)'
-                    el.style.boxShadow = `0 12px 32px rgba(0,0,0,0.3), 0 0 20px ${accentColor}10`
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = 'rgba(255,255,255,0.06)'
-                    el.style.transform = ''
-                    el.style.boxShadow = ''
-                  }}
                 >
                   <span className="text-4xl mb-3 block">{cat.icon}</span>
                   <h3
@@ -222,18 +210,6 @@ export default function BibliothequeHomePage() {
                   style={{
                     background: 'rgba(17,24,39,0.7)',
                     border: '1px solid rgba(255,255,255,0.06)',
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = `${accentColor}30`
-                    el.style.transform = 'translateY(-2px)'
-                    el.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3)`
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = 'rgba(255,255,255,0.06)'
-                    el.style.transform = ''
-                    el.style.boxShadow = ''
                   }}
                 >
                   <div className="flex items-center gap-2 mb-4">
@@ -336,14 +312,6 @@ export default function BibliothequeHomePage() {
                 style={{
                   border: '1px solid rgba(255,255,255,0.06)',
                   background: 'rgba(26,34,53,0.5)',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(212,175,55,0.2)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = 'rgba(255,255,255,0.06)'
                 }}
               >
                 <span className="text-2xl mb-2 block">{res.icon}</span>

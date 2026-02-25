@@ -130,14 +130,6 @@ export default async function CollectionPage({ params, searchParams }: Props) {
                   background: index % 2 === 0 ? 'rgba(17,24,39,0.7)' : 'rgba(26,34,53,0.5)',
                   borderBottom: index < (bookData.hadiths.length - 1) ? '1px solid rgba(255,255,255,0.04)' : 'none',
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.background = 'rgba(212,175,55,0.04)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.background = index % 2 === 0 ? 'rgba(17,24,39,0.7)' : 'rgba(26,34,53,0.5)'
-                }}
                 aria-label={`Hadith n° ${hadith.number}`}
               >
                 <div className="flex items-start gap-4">
@@ -208,16 +200,6 @@ export default async function CollectionPage({ params, searchParams }: Props) {
                 border: '1px solid rgba(255,255,255,0.08)',
                 color: '#94a3b8',
               }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(212,175,55,0.3)'
-                el.style.color = '#d4af37'
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(255,255,255,0.08)'
-                el.style.color = '#94a3b8'
-              }}
             >
               ← Page {currentPage - 1}
             </Link>
@@ -235,16 +217,6 @@ export default async function CollectionPage({ params, searchParams }: Props) {
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 color: '#94a3b8',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(212,175,55,0.3)'
-                el.style.color = '#d4af37'
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement
-                el.style.borderColor = 'rgba(255,255,255,0.08)'
-                el.style.color = '#94a3b8'
               }}
             >
               Page {currentPage + 1} →

@@ -2,13 +2,16 @@
 // ============================================================
 // SurahPageClient.tsx — Page sourate interactive
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { QdcChapter, QdcVerse } from '@/lib/quran-cdn-api'
+import { getVerseText } from '@/lib/quran-cdn-api'
 import SurahHeader from './SurahHeader'
 import Basmala from './Basmala'
 import AyahCardV2 from './AyahCardV2'
 import TafsirPanel from './TafsirPanel'
 import { useSettings } from '@/store/settings'
+import { usePlayer } from '@/store/player'
+import ReciterSelector from './ReciterSelector'
 
 interface SurahPageClientProps {
   chapter: QdcChapter
@@ -21,8 +24,24 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
   const [mode, setMode] = useState<ReadingMode>('ayah')
   const [tafsirOpen, setTafsirOpen] = useState(false)
   const [tafsirVerse, setTafsirVerse] = useState('')
+  const [showTajweed, setShowTajweed] = useState(false)
 
-  const { fontSize, showTranslation, toggleTranslation, reciterSlug, setReciter } = useSettings()
+  const { fontSize, showTranslation, toggleTranslation, autoScroll } = useSettings()
+  const { currentVerse, isPlaying } = usePlayer()
+
+  // Sauvegarder la dernière sourate/verset lu
+  useEffect(() => {
+    localStorage.setItem('noorapp-last-read', `${chapter.id}:1`)
+  }, [chapter.id])
+
+  // Auto-scroll vers le verset en cours de lecture
+  useEffect(() => {
+    if (!currentVerse || !autoScroll) return
+    const el = document.getElementById(`ayah-${currentVerse}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [currentVerse, autoScroll])
 
   function openTafsir(verseKey: string) {
     setTafsirVerse(verseKey)
@@ -73,6 +92,18 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
           🌍 Traduction
         </button>
 
+        {/* Tajweed toggle */}
+        <button
+          onClick={() => setShowTajweed(!showTajweed)}
+          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors shrink-0 ${
+            showTajweed
+              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+              : 'text-slate-500 hover:text-white border border-white/10'
+          }`}
+        >
+          🎨 Tajweed
+        </button>
+
         {/* Tafsir button */}
         <button
           onClick={() => {
@@ -83,8 +114,9 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
           📖 Tafsir
         </button>
 
-        <div className="ml-auto text-xs text-slate-500 shrink-0">
-          {chapter.verses_count} versets
+        <div className="ml-auto flex items-center gap-2 shrink-0">
+          <ReciterSelector />
+          <span className="text-xs text-slate-600 hidden sm:block">{chapter.verses_count} v.</span>
         </div>
       </div>
 
@@ -97,9 +129,7 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
           <AyahCardV2
             key={verse.verse_key}
             verseKey={verse.verse_key}
-            textUthmani={verse.words
-              ? verse.words.map(w => w.text_uthmani).join(' ')
-              : ''}
+            textUthmani={getVerseText(verse)}
             translations={verse.translations}
             words={verse.words}
             surahName={chapter.name_simple}
@@ -107,7 +137,9 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
             ayahCount={chapter.verses_count}
             showWordByWord={mode === 'word-by-word'}
             showTransliteration={mode === 'word-by-word'}
+            showTajweed={showTajweed && mode !== 'word-by-word'}
             fontSize={fontSize}
+            isActive={currentVerse === verse.verse_key && isPlaying}
           />
         ))}
       </div>

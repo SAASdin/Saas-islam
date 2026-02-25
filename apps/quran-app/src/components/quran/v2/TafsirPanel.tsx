@@ -5,6 +5,7 @@
 // ============================================================
 import { useState, useEffect } from 'react'
 import { getTafsirByVerse } from '@/lib/quran-cdn-api'
+import { sanitizeLight } from '@/lib/sanitize'
 
 const TAFSIRS = [
   { id: 169, name: 'Tafsir Muyassar',  lang: 'ar' as const,  flag: '🇸🇦' },
@@ -102,23 +103,16 @@ export default function TafsirPanel({ isOpen, onClose, verseKey }: TafsirPanelPr
 
           {tafsirText && !loading && (
             <div
-              className={`prose prose-invert prose-sm max-w-none ${
-                currentTafsir?.lang === 'ar' ? 'text-right' : ''
-              }`}
               dir={currentTafsir?.lang === 'ar' ? 'rtl' : 'ltr'}
               lang={currentTafsir?.lang}
             >
-              {/* Nettoyer les balises HTML basiques du tafsir */}
-              <div
-                className="text-slate-300 leading-relaxed text-sm"
-                dangerouslySetInnerHTML={{
-                  __html: tafsirText
-                    .replace(/<sup[^>]*>.*?<\/sup>/g, '')
-                    .replace(/<[^>]+>/g, ' ')
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                }}
-              />
+              <p
+                className={`text-slate-300 leading-relaxed text-sm whitespace-pre-line ${
+                  currentTafsir?.lang === 'ar' ? 'text-right arabic-text' : ''
+                }`}
+              >
+                {sanitizeLight(tafsirText)}
+              </p>
             </div>
           )}
         </div>

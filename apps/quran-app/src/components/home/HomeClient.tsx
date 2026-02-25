@@ -2,7 +2,7 @@
 // ============================================================
 // HomeClient.tsx — Page d'accueil interactive
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import type { QdcChapter } from '@/lib/quran-cdn-api'
 
@@ -46,10 +46,31 @@ const JUZ_INFO: Record<number, { surahName: string; startVerse: string }> = {
   30: { surahName: 'An-Naba', startVerse: '78:1' },
 }
 
+// Verset du jour — change chaque jour selon l'index
+function getDailyVerse(): { key: string; arabic: string; fr: string; ref: string } {
+  const DAILY_VERSES = [
+    { key: '2:255', arabic: 'ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ', fr: 'Allah ! Point de divinité que Lui, le Vivant, Celui qui subsiste par Lui-même', ref: 'Al-Baqarah 2:255 (Ayat al-Kursi)' },
+    { key: '94:5', arabic: 'فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', fr: 'Car avec la difficulté vient certes la facilité.', ref: 'Ash-Sharh 94:5' },
+    { key: '2:286', arabic: 'لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا', fr: 'Allah n\'impose à chaque âme que ce qu\'elle peut supporter.', ref: 'Al-Baqarah 2:286' },
+    { key: '3:200', arabic: 'يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱصْبِرُوا۟', fr: 'Ô les croyants ! Endurez, surpassez en endurance...', ref: 'Ali \'Imran 3:200' },
+    { key: '39:53', arabic: 'قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ', fr: 'Dis : "Ô Mes serviteurs qui avez commis des excès à votre propre détriment, ne désespérez pas de la miséricorde d\'Allah"', ref: 'Az-Zumar 39:53' },
+    { key: '65:3', arabic: 'وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ', fr: 'Et quiconque place sa confiance en Allah, Il lui suffit.', ref: 'At-Talaq 65:3' },
+    { key: '13:28', arabic: 'أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ', fr: 'C\'est par l\'évocation d\'Allah que les cœurs se tranquillisent.', ref: 'Ar-Ra\'d 13:28' },
+  ]
+  const day = Math.floor(Date.now() / 86400000)
+  return DAILY_VERSES[day % DAILY_VERSES.length]
+}
+
 export default function HomeClient({ chapters }: Props) {
   const [tab, setTab] = useState<TabMode>('surah')
   const [query, setQuery] = useState('')
   const [ascending, setAscending] = useState(true)
+  const [lastRead, setLastRead] = useState<string | null>(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem('noorapp-last-read')
+    if (stored) setLastRead(stored)
+  }, [])
 
   const filteredChapters = useMemo(() => {
     let list = [...chapters]
@@ -108,6 +129,61 @@ export default function HomeClient({ chapters }: Props) {
             </svg>
           </button>
         )}
+      </div>
+
+      {/* ── Continuer + Verset du jour ───────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-8">
+        {/* Continuer la lecture */}
+        {lastRead ? (
+          <Link
+            href={`/surah/${lastRead.split(':')[0]}`}
+            className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/25 hover:border-emerald-500/50 rounded-xl transition-all group"
+          >
+            <span className="text-2xl">📖</span>
+            <div>
+              <p className="text-xs text-emerald-400 mb-0.5">Continuer la lecture</p>
+              <p className="text-white text-sm font-medium group-hover:text-emerald-300 transition-colors">
+                Sourate {lastRead.split(':')[0]}
+              </p>
+            </div>
+            <svg className="w-4 h-4 text-emerald-500/50 group-hover:text-emerald-400 ml-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        ) : (
+          <Link
+            href="/surah/1"
+            className="flex items-center gap-3 p-4 bg-white/3 border border-white/10 hover:border-emerald-500/30 rounded-xl transition-all group"
+          >
+            <span className="text-2xl">🌟</span>
+            <div>
+              <p className="text-xs text-slate-500 mb-0.5">Commencer</p>
+              <p className="text-white text-sm font-medium group-hover:text-emerald-300 transition-colors">Al-Fatihah</p>
+            </div>
+            <svg className="w-4 h-4 text-slate-600 group-hover:text-emerald-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        )}
+
+        {/* Verset du jour */}
+        {(() => {
+          const dv = getDailyVerse()
+          return (
+            <Link href={`/surah/${dv.key.split(':')[0]}/${dv.key.split(':')[1]}`}
+              className="flex flex-col gap-2 p-4 bg-amber-500/8 border border-amber-500/20 hover:border-amber-500/40 rounded-xl transition-all group">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">✨</span>
+                <p className="text-xs text-amber-400/80">Verset du jour</p>
+              </div>
+              <p className="quran-text text-amber-100/80 text-lg leading-relaxed text-right group-hover:text-amber-100 transition-colors line-clamp-2" dir="rtl" lang="ar">
+                {dv.arabic}
+              </p>
+              <p className="text-slate-400 text-xs italic line-clamp-1">{dv.fr}</p>
+              <p className="text-amber-500/60 text-xs">{dv.ref}</p>
+            </Link>
+          )
+        })()}
       </div>
 
       {/* ── Tabs + tri ────────────────────────────── */}

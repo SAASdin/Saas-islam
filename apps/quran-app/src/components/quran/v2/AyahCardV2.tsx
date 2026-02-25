@@ -7,9 +7,11 @@
 import { useState, useCallback } from 'react'
 import { usePlayer } from '@/store/player'
 import { useSettings } from '@/store/settings'
-import { getVerseAudioUrl } from '@/lib/quran-cdn-api'
 import type { QdcWord, QdcTranslation } from '@/lib/quran-cdn-api'
+import { sanitizeTranslation } from '@/lib/sanitize'
 import WordByWord from './WordByWord'
+import ShareVerse from './ShareVerse'
+import TajweedText from './TajweedText'
 
 interface AyahCardV2Props {
   verseKey: string            // "1:1"
@@ -21,6 +23,7 @@ interface AyahCardV2Props {
   ayahCount: number
   showWordByWord?: boolean
   showTransliteration?: boolean
+  showTajweed?: boolean
   fontSize?: number
   isActive?: boolean          // verset en cours de lecture
 }
@@ -35,6 +38,7 @@ export default function AyahCardV2({
   ayahCount,
   showWordByWord,
   showTransliteration,
+  showTajweed,
   fontSize,
   isActive,
 }: AyahCardV2Props) {
@@ -42,6 +46,7 @@ export default function AyahCardV2({
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [copied, setCopied] = useState(false)
   const [actionsVisible, setActionsVisible] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const { isPlaying, currentVerse, setVerse, setPlaying } = usePlayer()
   const { reciterSlug, primaryTranslation, showTranslation } = useSettings()
@@ -193,6 +198,17 @@ export default function AyahCardV2({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </button>
+
+          {/* Partage Premium */}
+          <button
+            onClick={() => setShareOpen(true)}
+            className="p-1.5 rounded-md text-slate-500 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"
+            title="Partager ce verset"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -200,7 +216,14 @@ export default function AyahCardV2({
       {showWordByWord && words && words.length > 0 ? (
         <WordByWord
           words={words}
+          verseKey={verseKey}
           showTransliteration={showTransliteration}
+          fontSize={fontSize}
+        />
+      ) : showTajweed ? (
+        <TajweedText
+          verseKey={verseKey}
+          fallbackText={textUthmani}
           fontSize={fontSize}
         />
       ) : (
@@ -219,7 +242,7 @@ export default function AyahCardV2({
       {showTranslation && displayTranslation && (
         <div className="mt-3 pl-4 border-l border-emerald-500/20">
           <p className="text-slate-300 text-sm leading-relaxed italic">
-            {displayTranslation.text}
+            {sanitizeTranslation(displayTranslation.text)}
           </p>
           {/* Label traduction automatique requis par SOUL.md */}
           <p className="text-slate-600 text-xs mt-1">
@@ -227,6 +250,16 @@ export default function AyahCardV2({
           </p>
         </div>
       )}
+
+      {/* ── Partage premium ─────────────────────────── */}
+      <ShareVerse
+        verseKey={verseKey}
+        textUthmani={textUthmani}
+        translationText={displayTranslation?.text}
+        surahName={surahName}
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+      />
 
       {/* ── Mémoriser ───────────────────────────────── */}
       <div className={`mt-3 flex items-center gap-2 transition-opacity ${
@@ -238,6 +271,7 @@ export default function AyahCardV2({
             if (!stored.includes(verseKey)) {
               localStorage.setItem('noorapp-memorize-queue', JSON.stringify([...stored, verseKey]))
             }
+            window.location.href = '/memorize'
           }}
           className="text-xs text-slate-500 hover:text-emerald-400 flex items-center gap-1 transition-colors"
         >
@@ -246,6 +280,12 @@ export default function AyahCardV2({
           </svg>
           Mémoriser
         </button>
+        <a href="/memorize" className="text-xs text-slate-600 hover:text-slate-400 flex items-center gap-1 transition-colors">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          File SRS
+        </a>
       </div>
     </div>
   )

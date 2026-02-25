@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getHadith, getCollectionMeta, HADITH_COLLECTIONS, formatHadithRef } from '@/lib/hadith-api'
 import Navigation from '@/components/Navigation'
+import ShareButton from '@/components/hadith/ShareButton'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -282,33 +283,5 @@ export default async function HadithPage({ params }: Props) {
         </footer>
       </div>
     </div>
-  )
-}
-
-// ── Composant partage (Client Component) ─────────────────────
-'use client'
-
-function ShareButton({ text, url }: { text: string; url: string }) {
-  const handleShare = async () => {
-    const fullUrl = `${window.location.origin}${url}`
-    if (navigator.share) {
-      await navigator.share({ text, url: fullUrl }).catch(() => {})
-    } else {
-      await navigator.clipboard.writeText(`${text}\n\n${fullUrl}`).catch(() => {})
-    }
-  }
-
-  return (
-    <button
-      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs transition-all duration-200"
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        color: '#64748b',
-      }}
-    >
-      <span>🔗</span>
-      <span>Partager ce hadith</span>
-    </button>
   )
 }

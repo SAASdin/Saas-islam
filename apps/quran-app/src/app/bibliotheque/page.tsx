@@ -16,14 +16,14 @@ export const metadata: Metadata = {
 export const revalidate = 86400
 
 const CATEGORY_COLORS: Record<string, string> = {
-  tafsir: '#d4af37',
-  hadith: '#22c55e',
-  fiqh: '#60a5fa',
-  aqida: '#a78bfa',
-  sira: '#fb923c',
+  quran:    '#d4af37',
+  hadith:   '#22c55e',
+  fiqh:     '#60a5fa',
+  aqida:    '#a78bfa',
+  sira:     '#fb923c',
   tasawwuf: '#34d399',
-  lughah: '#f472b6',
-  other: '#94a3b8',
+  lughah:   '#f472b6',
+  general:  '#94a3b8',
 }
 
 export default function BibliothequeHomePage() {
@@ -81,8 +81,8 @@ export default function BibliothequeHomePage() {
             Des milliers de livres islamiques classiques — tafsir, hadith, fiqh, aqida, sira.
           </p>
 
-          {/* Barre de recherche */}
-          <div className="relative max-w-xl mx-auto">
+          {/* Barre de recherche — redirige vers /search */}
+          <form action="/search" method="GET" className="relative max-w-xl mx-auto">
             <svg
               className="absolute left-4 top-4 w-5 h-5 pointer-events-none"
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -93,8 +93,9 @@ export default function BibliothequeHomePage() {
             </svg>
             <input
               type="search"
+              name="q"
               placeholder="Chercher un livre, un auteur..."
-              className="w-full px-5 py-4 pl-12 rounded-2xl text-base"
+              className="w-full px-5 py-4 pl-12 pr-28 rounded-2xl text-base"
               style={{
                 background: 'rgba(255,255,255,0.06)',
                 border: '1px solid rgba(255,255,255,0.1)',
@@ -103,7 +104,17 @@ export default function BibliothequeHomePage() {
               }}
               aria-label="Rechercher dans la bibliothèque"
             />
-          </div>
+            <button
+              type="submit"
+              className="absolute right-2 top-2 px-4 py-2.5 rounded-xl text-sm font-medium"
+              style={{
+                background: 'linear-gradient(135deg, #15803d 0%, #0d7a4e 100%)',
+                color: '#f1f5f9',
+              }}
+            >
+              Chercher
+            </button>
+          </form>
 
           {/* Stats */}
           <div className="flex justify-center gap-8 mt-8">

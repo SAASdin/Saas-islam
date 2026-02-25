@@ -46,7 +46,7 @@ export default function RTLWrapper({
       id={id}
       className={`quran-text leading-loose ${className}`}
       style={{
-        fontFamily: 'var(--font-amiri)',
+        fontFamily: 'var(--font-kfgqpc, var(--font-amiri))',
         fontSize: resolvedSize,
         textAlign,
         letterSpacing: 0,

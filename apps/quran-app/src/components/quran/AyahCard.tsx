@@ -147,7 +147,7 @@ export default function AyahCard({
               lang="ar"
               className="text-xs"
               style={{
-                fontFamily: 'var(--font-amiri, Amiri, serif)',
+                fontFamily: 'var(--font-kfgqpc, var(--font-amiri), serif)',
                 color: BORDER_GOLD,
                 lineHeight: '1.4',
               }}
@@ -235,7 +235,7 @@ export default function AyahCard({
           className="text-right leading-loose select-text"
           style={{
             // ⚠️ Police islamique — JAMAIS Arial / Helvetica / system-ui
-            fontFamily: 'KFGQPC Uthmanic Script HAFS, var(--font-amiri, Amiri), Scheherazade New, serif',
+            fontFamily: 'var(--font-kfgqpc, var(--font-amiri), Scheherazade New, serif)',
             fontSize: '1.8rem',       // 28.8px — lisibilité garantie
             lineHeight: '3rem',       // Espace pour les signes diacritiques
             color: '#111827',

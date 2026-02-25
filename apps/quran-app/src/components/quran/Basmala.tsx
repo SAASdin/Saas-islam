@@ -35,7 +35,7 @@ export default function Basmala({ show = true, size = 'lg', className = '' }: Ba
         dir="rtl"
         lang="ar"
         className={`quran-text ${SIZES[size]} leading-loose text-gold-400`}
-        style={{ fontFamily: 'var(--font-amiri)', letterSpacing: 0 }}
+        style={{ fontFamily: 'var(--font-kfgqpc, var(--font-amiri))', letterSpacing: 0 }}
       >
         بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
       </p>

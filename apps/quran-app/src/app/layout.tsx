@@ -2,7 +2,7 @@
 // Polices islamiques chargées via <link> — App Router (pas Pages Router)
 // La règle no-page-custom-font est désactivée : elle vise _document.js (Pages Router)
 import type { Metadata } from 'next'
-import { amiri, notoNaskhArabic } from '@/lib/fonts'
+import { kfgqpc, amiri, notoNaskhArabic } from '@/lib/fonts'
 import './globals.css'
 
 // ============================================================
@@ -41,7 +41,7 @@ export default function RootLayout({
     // data-arabic-ready : permet au JS d'activer le mode RTL global si besoin
     <html
       lang="fr"
-      className={`dark ${amiri.variable} ${notoNaskhArabic.variable}`}
+      className={`dark ${kfgqpc.variable} ${amiri.variable} ${notoNaskhArabic.variable}`}
       suppressHydrationWarning
       data-arabic-ready="true"
     >

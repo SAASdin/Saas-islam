@@ -1,45 +1,39 @@
-# Polices islamiques — KFGQPC
+# Polices islamiques — NoorApp
 
-## Police officielle Mushaf de Médine
+## Police principale : KFGQPC Uthmanic Script HAFS
 
-La police **KFGQPC Uthmanic Script HAFS** est la police officielle du Mushaf de Médine,
-utilisée dans les applications islamiques de référence (Tarteel, QuranExplorer, Quran.com).
+| Fichier | Variante | Taille | Source |
+|---------|----------|--------|--------|
+| `KFGQPC-Uthmanic-Script-HAFS.ttf` | Regular (400) | 136 KB | KFGQPC |
+| `KFGQPC-Uthmanic-Script-HAFS-Bold.ttf` | Bold (700) | 129 KB | KFGQPC |
 
-### Téléchargement
+**Source officielle :** مجمع الملك فهد لطباعة المصحف الشريف  
+**URL :** https://fonts.qurancomplex.gov.sa/  
+**Variante :** UthmanTN v2.0 (Uthman Taha Naskh — édition Hafs 'an 'Asim)  
+**Téléchargé le :** 2026-02-25  
+**Licence :** Usage non-commercial autorisé pour affichage du Coran
 
-La police n'est pas distribuable librement dans le repo Git.
-Télécharge-la depuis la source officielle :
+### ⚠️ Règles absolues
 
-- **Source officielle** : https://fonts.qurancomplex.gov.sa/
-- **Fichiers attendus** :
-  - `KFGQPC-Uthmanic-Script-HAFS.ttf` (Regular 400)
-  - `KFGQPC-Uthmanic-Script-HAFS-Bold.ttf` (Bold 700) — optionnel
+- Ces fichiers NE DOIVENT PAS être modifiés sous quelque prétexte que ce soit
+- NE PAS renommer (les chemins sont référencés dans `src/lib/fonts.ts`)
+- NE PAS remplacer par une autre police sans validation des deux collaborateurs
+- NE PAS committer une version altérée
 
-### Installation
+### Configuration Next.js
 
-1. Place les fichiers `.ttf` dans ce dossier (`public/fonts/`)
-2. Décommente la configuration dans `src/lib/fonts.ts`
-3. Ajoute la variable CSS dans `src/app/globals.css` :
+La police est chargée via `next/font/local` dans `src/lib/fonts.ts` :
+- CSS variable : `--font-kfgqpc`
+- Classe HTML : appliquée sur `<html>` dans `layout.tsx`
+- Priorité dans le stack : KFGQPC → Amiri → Noto Naskh → Scheherazade New → serif
 
-```css
-@font-face {
-  font-family: 'KFGQPC Uthmanic Script HAFS';
-  src: url('/fonts/KFGQPC-Uthmanic-Script-HAFS.ttf') format('truetype');
-  font-weight: 400;
-  font-display: swap;
-}
-```
+### Polices de fallback (Google Fonts)
 
-### Fallback actuel
+- **Amiri** : chargée via `next/font/google` — variable `--font-amiri`
+- **Noto Naskh Arabic** : chargée via `next/font/google` — variable `--font-noto-arabic`
+- **Scheherazade New** : chargée via `<link>` dans `layout.tsx` (fallback CSS)
 
-Sans KFGQPC, la stack de polices utilise (dans l'ordre) :
-1. **Amiri** (Google Fonts via `next/font/google`) ← actuelle
-2. **Noto Naskh Arabic** (Google Fonts)
-3. **Scheherazade New** (Google Fonts CDN)
-4. serif (fallback système)
+### Polices legacy (woff2)
 
-### ⚠️ Important
-
-- Ne jamais utiliser Arial, Helvetica, ou une police sans-serif pour le texte coranique
-- Taille minimum : 16px (1rem)
-- `dir="rtl"` + `lang="ar"` obligatoires sur tous les éléments arabes
+Les fichiers `Amiri-Regular.woff2` et `Amiri-Bold.woff2` sont des stubs vides —
+la police Amiri est chargée via Google Fonts (`next/font/google`).

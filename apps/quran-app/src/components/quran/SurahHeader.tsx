@@ -41,7 +41,7 @@ export default function SurahHeader({ surah, className = '' }: SurahHeaderProps)
         dir="rtl"
         lang="ar"
         className="quran-text text-5xl leading-loose mb-3"
-        style={{ fontFamily: 'var(--font-amiri)', color: '#f1f5f9' }}
+        style={{ fontFamily: 'var(--font-kfgqpc, var(--font-amiri))', color: '#f1f5f9' }}
       >
         {/* ⚠️ Texte arabe — READ ONLY */}
         سورة {surah.nameArabic}

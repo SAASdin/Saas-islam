@@ -318,7 +318,7 @@ function SearchResultCard({ result, highlightedTranslation, isFirst }: SearchRes
           className="text-right leading-loose select-text"
           style={{
             // ⚠️ Police islamique — JAMAIS Arial / Helvetica
-            fontFamily: 'KFGQPC Uthmanic Script HAFS, var(--font-amiri, Amiri), Scheherazade New, serif',
+            fontFamily: 'var(--font-kfgqpc, var(--font-amiri), Scheherazade New, serif)',
             fontSize:    '1.8rem',
             lineHeight:  '3rem',
             color:       '#111827',

@@ -24,8 +24,9 @@ interface SettingsState {
   showTransliteration: boolean
 
   // ─── Traductions ──────────────────────────────────
-  primaryTranslation: number    // ID qurancdn
+  primaryTranslation: number        // ID principal (affiché en premier)
   secondaryTranslation: number | null
+  selectedTranslations: number[]    // Toutes les traductions actives
   showTranslation: boolean
 
   // ─── Tafsir ───────────────────────────────────────
@@ -55,6 +56,8 @@ interface SettingsState {
   toggleTranslation: () => void
   setPrimaryTranslation: (id: number) => void
   setSecondaryTranslation: (id: number | null) => void
+  toggleTranslationId: (id: number) => void
+  setSelectedTranslations: (ids: number[]) => void
   setReciter: (id: number, slug: string) => void
   setRepeatMode: (m: RepeatMode) => void
   setPlaybackSpeed: (s: PlaybackSpeed) => void
@@ -90,8 +93,9 @@ export const useSettings = create<SettingsState>()(
       showTajweed: false,
       showWordByWord: false,
       showTransliteration: false,
-      primaryTranslation: 31,   // Hamidullah FR (id correct)
-      secondaryTranslation: null,
+      primaryTranslation: 31,            // Hamidullah FR
+      secondaryTranslation: 20,          // Saheeh EN
+      selectedTranslations: [31, 20],    // Actives par défaut
       showTranslation: true,
       selectedTafsirId: 16,     // Tafsir Muyassar AR (id correct)
       showTafsir: false,
@@ -113,8 +117,26 @@ export const useSettings = create<SettingsState>()(
       toggleWordByWord: () => set((s) => ({ showWordByWord: !s.showWordByWord })),
       toggleTransliteration: () => set((s) => ({ showTransliteration: !s.showTransliteration })),
       toggleTranslation: () => set((s) => ({ showTranslation: !s.showTranslation })),
-      setPrimaryTranslation: (id) => set({ primaryTranslation: id }),
+      setPrimaryTranslation: (id) => set((s) => ({
+        primaryTranslation: id,
+        selectedTranslations: s.selectedTranslations.includes(id)
+          ? s.selectedTranslations
+          : [id, ...s.selectedTranslations],
+      })),
       setSecondaryTranslation: (id) => set({ secondaryTranslation: id }),
+      toggleTranslationId: (id) => set((s) => {
+        const active = s.selectedTranslations
+        const updated = active.includes(id)
+          ? active.filter(t => t !== id)
+          : [...active, id]
+        return {
+          selectedTranslations: updated.length > 0 ? updated : active, // au moins 1
+          primaryTranslation: updated.includes(s.primaryTranslation)
+            ? s.primaryTranslation
+            : (updated[0] ?? s.primaryTranslation),
+        }
+      }),
+      setSelectedTranslations: (ids) => set({ selectedTranslations: ids }),
       setReciter: (id, slug) => set({ reciterId: id, reciterSlug: RECITER_SLUGS[id] ?? slug }),
       setRepeatMode: (m) => set({ repeatMode: m }),
       setPlaybackSpeed: (s) => set({ playbackSpeed: s }),

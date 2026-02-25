@@ -37,7 +37,15 @@ export default async function SurahPage({ params }: Props) {
   const [{ chapter }, { verses }] = await Promise.all([
     getChapter(num),
     getVersesByChapter(num, {
-      translations: [TRANSLATIONS.hamidullah_fr, TRANSLATIONS.saheeh_en],
+      // Charger toutes les traductions FR + EN par défaut
+      translations: [
+        TRANSLATIONS.hamidullah_fr,  // 31 - Hamidullah FR
+        TRANSLATIONS.montada_fr,     // 136 - Montada FR
+        TRANSLATIONS.rashid_fr,      // 779 - Rashid Maash FR
+        TRANSLATIONS.saheeh_en,      // 20 - Saheeh International EN
+        TRANSLATIONS.haleem_en,      // 85 - Abdel Haleem EN
+        TRANSLATIONS.usmani_en,      // 84 - T. Usmani EN
+      ],
       words: true,
       audioId: 7,
     }),

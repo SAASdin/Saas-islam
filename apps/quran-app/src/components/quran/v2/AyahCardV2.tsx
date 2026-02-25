@@ -9,6 +9,11 @@ import { usePlayer } from '@/store/player'
 import { useSettings } from '@/store/settings'
 import type { QdcWord, QdcTranslation } from '@/lib/quran-cdn-api'
 import { sanitizeTranslation } from '@/lib/sanitize'
+import { ALL_TRANSLATIONS } from '@/lib/translations-catalog'
+
+function getTranslationMeta(id: number) {
+  return ALL_TRANSLATIONS.find(t => t.id === id) ?? { flag: '📖', author: `ID ${id}`, language: '' }
+}
 import WordByWord from './WordByWord'
 import ShareVerse from './ShareVerse'
 import TajweedText from './TajweedText'
@@ -25,7 +30,8 @@ interface AyahCardV2Props {
   showTransliteration?: boolean
   showTajweed?: boolean
   fontSize?: number
-  isActive?: boolean          // verset en cours de lecture
+  isActive?: boolean
+  onOpenTafsir?: (verseKey: string) => void
 }
 
 export default function AyahCardV2({
@@ -41,6 +47,7 @@ export default function AyahCardV2({
   showTajweed,
   fontSize,
   isActive,
+  onOpenTafsir,
 }: AyahCardV2Props) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -49,15 +56,16 @@ export default function AyahCardV2({
   const [shareOpen, setShareOpen] = useState(false)
 
   const { isPlaying, currentVerse, setVerse, setPlaying } = usePlayer()
-  const { reciterSlug, primaryTranslation, showTranslation } = useSettings()
+  const { reciterSlug, primaryTranslation, selectedTranslations, showTranslation } = useSettings()
 
   const [surahNum, ayahNum] = verseKey.split(':').map(Number)
 
-  // Traduction principale — cherche l'ID configuré, sinon le premier FR, sinon le premier disponible
-  const mainTranslation = translations?.find(t => t.resource_id === primaryTranslation)
-  const frTranslation = translations?.find(t => [31, 136, 779].includes(t.resource_id))
-  const enTranslation = translations?.find(t => [20, 85, 84].includes(t.resource_id))
-  const displayTranslation = mainTranslation ?? frTranslation ?? enTranslation ?? translations?.[0]
+  // Toutes les traductions actives disponibles pour ce verset
+  const activeTranslations = translations?.filter(t => selectedTranslations.includes(t.resource_id)) ?? []
+  // Fallback si aucune traduction active n'est disponible dans la réponse
+  const displayTranslations = activeTranslations.length > 0
+    ? activeTranslations
+    : (translations?.slice(0, 2) ?? [])
 
   const isThisPlaying = currentVerse === verseKey && isPlaying
 
@@ -73,11 +81,11 @@ export default function AyahCardV2({
 
   // Copie
   const handleCopy = useCallback(async () => {
-    const text = `${textUthmani}\n${displayTranslation?.text ?? ''}\n(${verseKey})`
+    const primary = displayTranslations[0]; const text = `${textUthmani}\n${primary?.text ? sanitizeTranslation(primary.text) : ""}\n(${verseKey})`
     await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }, [textUthmani, displayTranslation, verseKey])
+  }, [textUthmani, displayTranslations, verseKey])
 
   // Favori
   const handleFavorite = useCallback(() => {
@@ -200,6 +208,19 @@ export default function AyahCardV2({
             </svg>
           </button>
 
+          {/* Tafsir */}
+          {onOpenTafsir && (
+            <button
+              onClick={() => onOpenTafsir(verseKey)}
+              className="p-1.5 rounded-md text-slate-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+              title="Ouvrir le Tafsir"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </button>
+          )}
+
           {/* Partage Premium */}
           <button
             onClick={() => setShareOpen(true)}
@@ -240,15 +261,24 @@ export default function AyahCardV2({
       )}
 
       {/* ── Traduction ──────────────────────────────── */}
-      {showTranslation && displayTranslation && (
-        <div className="mt-3 pl-4 border-l border-emerald-500/20">
-          <p className="text-slate-300 text-sm leading-relaxed italic">
-            {sanitizeTranslation(displayTranslation.text)}
-          </p>
-          {/* Label traduction automatique requis par SOUL.md */}
-          <p className="text-slate-600 text-xs mt-1">
-            Traduction — Hamidullah
-          </p>
+      {showTranslation && displayTranslations.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {displayTranslations.map((trad, i) => {
+            const meta = getTranslationMeta(trad.resource_id)
+            const isPrimary = trad.resource_id === primaryTranslation
+            return (
+              <div key={trad.resource_id} className={`pl-4 border-l-2 ${isPrimary ? 'border-emerald-500/40' : 'border-white/10'}`}>
+                <p className={`text-sm leading-relaxed ${isPrimary ? 'text-slate-200' : 'text-slate-400'}`}>
+                  {sanitizeTranslation(trad.text)}
+                </p>
+                <p className="text-slate-600 text-xs mt-0.5">
+                  {meta.flag} {meta.author} · {meta.language}
+                  {/* Label traduction automatique — requis par SOUL.md */}
+                  {' '}· <span className="text-slate-700">Traduction</span>
+                </p>
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -256,7 +286,7 @@ export default function AyahCardV2({
       <ShareVerse
         verseKey={verseKey}
         textUthmani={textUthmani}
-        translationText={displayTranslation?.text}
+        translationText={displayTranslations[0]?.text}
         surahName={surahName}
         isOpen={shareOpen}
         onClose={() => setShareOpen(false)}

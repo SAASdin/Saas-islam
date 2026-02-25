@@ -12,6 +12,8 @@ import TafsirPanel from './TafsirPanel'
 import { useSettings } from '@/store/settings'
 import { usePlayer } from '@/store/player'
 import ReciterSelector from './ReciterSelector'
+import TranslationSelector from './TranslationSelector'
+import { useChapterTranslations } from '@/hooks/useVerseTranslations'
 
 interface SurahPageClientProps {
   chapter: QdcChapter
@@ -25,9 +27,13 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
   const [tafsirOpen, setTafsirOpen] = useState(false)
   const [tafsirVerse, setTafsirVerse] = useState('')
   const [showTajweed, setShowTajweed] = useState(false)
+  const [translationSelectorOpen, setTranslationSelectorOpen] = useState(false)
 
-  const { fontSize, showTranslation, toggleTranslation, autoScroll } = useSettings()
+  const { fontSize, showTranslation, toggleTranslation, autoScroll, selectedTranslations } = useSettings()
   const { currentVerse, isPlaying } = usePlayer()
+
+  // Rechargement dynamique des traductions selon la sélection
+  const { verses: liveVerses, loading: translationsLoading } = useChapterTranslations(chapter.id, verses)
 
   // Sauvegarder la dernière sourate/verset lu
   useEffect(() => {
@@ -80,17 +86,30 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
 
         <div className="h-5 w-px bg-white/10 shrink-0" />
 
-        {/* Toggle traduction */}
-        <button
-          onClick={toggleTranslation}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors shrink-0 ${
-            showTranslation
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-              : 'text-slate-500 hover:text-white border border-white/10'
-          }`}
-        >
-          🌍 Traduction
-        </button>
+        {/* Toggle traduction + sélecteur */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button
+            onClick={toggleTranslation}
+            className={`px-3 py-1.5 rounded-l-md text-xs font-medium transition-colors border ${
+              showTranslation
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                : 'text-slate-500 hover:text-white border-white/10'
+            }`}
+          >
+            🌍 {selectedTranslations.length > 1 ? `${selectedTranslations.length} trad.` : 'Traduction'}
+          </button>
+          <button
+            onClick={() => setTranslationSelectorOpen(true)}
+            className={`px-2 py-1.5 rounded-r-md text-xs transition-colors border-t border-r border-b ${
+              showTranslation
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+                : 'text-slate-500 hover:text-white border-white/10 hover:bg-white/5'
+            }`}
+            title="Choisir les traductions"
+          >
+            ⚙
+          </button>
+        </div>
 
         {/* Tajweed toggle */}
         <button
@@ -104,11 +123,9 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
           🎨 Tajweed
         </button>
 
-        {/* Tafsir button */}
+        {/* Tafsir button — ouvre pour le premier verset par défaut */}
         <button
-          onClick={() => {
-            if (verses[0]) openTafsir(verses[0].verse_key)
-          }}
+          onClick={() => openTafsir(liveVerses[0]?.verse_key ?? `${chapter.id}:1`)}
           className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-500 hover:text-white border border-white/10 transition-colors shrink-0"
         >
           📖 Tafsir
@@ -123,9 +140,17 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
       {/* Basmala */}
       <Basmala show={chapter.bismillah_pre} />
 
+      {/* Indicateur chargement traductions */}
+      {translationsLoading && (
+        <div className="flex items-center justify-center gap-2 py-2 text-xs text-slate-500">
+          <div className="w-3 h-3 border border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          Chargement des traductions…
+        </div>
+      )}
+
       {/* Liste des versets */}
       <div>
-        {verses.map((verse) => (
+        {liveVerses.map((verse) => (
           <AyahCardV2
             key={verse.verse_key}
             verseKey={verse.verse_key}
@@ -140,6 +165,7 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
             showTajweed={showTajweed && mode !== 'word-by-word'}
             fontSize={fontSize}
             isActive={currentVerse === verse.verse_key && isPlaying}
+            onOpenTafsir={(key) => { setTafsirVerse(key); setTafsirOpen(true) }}
           />
         ))}
       </div>
@@ -171,6 +197,12 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
         isOpen={tafsirOpen}
         onClose={() => setTafsirOpen(false)}
         verseKey={tafsirVerse}
+      />
+
+      {/* TranslationSelector */}
+      <TranslationSelector
+        isOpen={translationSelectorOpen}
+        onClose={() => setTranslationSelectorOpen(false)}
       />
     </div>
   )

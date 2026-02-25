@@ -1,0 +1,21 @@
+{
+  "date": "2026-02-25T08:41:02.033Z",
+  "source": "api.qurancdn.com",
+  "apiVersion": "qdc/v1",
+  "totalSurahs": 114,
+  "totalAyahs": 6236,
+  "translations": [
+    "fr-hamidullah (Muhammad Hamidullah, ID: 31)",
+    "en-saheeh-international (Saheeh International, ID: 20)"
+  ],
+  "sampleChecks": {
+    "alFatihah_verseCount": 7,
+    "alBaqarah_verseCount": 286,
+    "atTawbah_hasBismillah": false
+  },
+  "integrityHash": "d79a0c38803f8023401a13df9eb53e6d0f9d9f74e65fa1ad6a60f3892b6eb84e",
+  "dryRun": true,
+  "status": "SUCCESS",
+  "errors": [],
+  "durationMs": 62217
+}

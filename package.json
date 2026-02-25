@@ -7,6 +7,8 @@
     "node": ">=18"
   },
   "scripts": {
+    "import:quran": "tsx database/seeds/01-import-quran.ts",
+    "import:quran:dry": "DRY_RUN=true tsx database/seeds/01-import-quran.ts",
     "seed:quran": "tsx database/seeds/01_seed_quran.ts",
     "seed:hadiths": "tsx database/seeds/02_seed_hadiths.ts",
     "seed:all": "tsx database/seeds/run_all.ts",

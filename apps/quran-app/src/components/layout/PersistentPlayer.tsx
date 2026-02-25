@@ -5,7 +5,8 @@
 // ============================================================
 import { useRef, useEffect, useCallback } from 'react'
 import { usePlayer } from '@/store/player'
-import { getVerseAudioUrl } from '@/lib/quran-cdn-api'
+import { getVerseAudioUrl, getReciterSlugById } from '@/lib/quran-cdn-api'
+import { markVerseRead } from '@/lib/reading-goals'
 
 function formatTime(s: number): string {
   if (!isFinite(s) || isNaN(s)) return '0:00'
@@ -19,7 +20,7 @@ export default function PersistentPlayer() {
     isPlaying, currentVerse, currentSurahName,
     reciterName, reciterSlug,
     duration, currentTime, playbackSpeed, volume, repeatMode, showPlayer,
-    setPlaying, setProgress, setVolume,
+    setPlaying, setProgress, setVolume, setSpeed,
     nextVerse, prevVerse, closePlayer,
   } = usePlayer()
 
@@ -55,6 +56,10 @@ export default function PersistentPlayer() {
   }, [playbackSpeed])
 
   const handleEnded = useCallback(() => {
+    // Marquer le verset comme lu
+    const v = usePlayer.getState().currentVerse
+    if (v) markVerseRead(v)
+
     if (repeatMode === 'verse') {
       audioRef.current?.play().catch(() => {})
     } else {
@@ -155,6 +160,36 @@ export default function PersistentPlayer() {
           </div>
           <span className="text-xs text-slate-500 w-8 tabular-nums">{formatTime(duration)}</span>
         </div>
+      </div>
+
+      {/* Vitesse + Repeat */}
+      <div className="hidden md:flex items-center gap-2 shrink-0">
+        <button
+          onClick={() => {
+            const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2] as const
+            const idx = speeds.indexOf(playbackSpeed as typeof speeds[number])
+            const next = speeds[(idx + 1) % speeds.length]
+            setSpeed(next)
+            if (audioRef.current) audioRef.current.playbackRate = next
+          }}
+          className="px-2 py-1 rounded-md bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors"
+          title="Vitesse"
+        >
+          {playbackSpeed}×
+        </button>
+        <button
+          onClick={() => {
+            const modes = ['none', 'verse', 'surah'] as const
+            const idx = modes.indexOf(repeatMode)
+            usePlayer.getState().setRepeatMode(modes[(idx + 1) % modes.length])
+          }}
+          className={`p-1.5 rounded-md text-xs transition-colors ${
+            repeatMode !== 'none' ? 'text-emerald-400 bg-emerald-500/15' : 'text-slate-500 hover:text-white hover:bg-white/10'
+          }`}
+          title={`Répétition: ${repeatMode}`}
+        >
+          {repeatMode === 'verse' ? '🔂' : repeatMode === 'surah' ? '🔁' : '↩'}
+        </button>
       </div>
 
       {/* Volume + Close */}

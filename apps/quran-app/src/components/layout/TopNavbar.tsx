@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: '/search',    label: 'Recherche'    },
   { href: '/radio',     label: 'Radio'        },
   { href: '/reciters',  label: 'Récitateurs'  },
+  { href: '/progress',  label: 'Progression'  },
   { href: '/hadiths',   label: 'Hadiths'      },
   { href: '/priere',    label: 'Prière'       },
 ]

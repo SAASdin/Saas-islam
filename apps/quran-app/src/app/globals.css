@@ -274,3 +274,68 @@ body {
   background: var(--color-gold);
   border-radius: 1px;
 }
+
+/* ════════════════════════════════════════════
+   Thèmes dynamiques — ThemeProvider
+   ════════════════════════════════════════════ */
+
+/* Thème clair */
+html.theme-light {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f5f9;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: rgba(0,0,0,0.1);
+  --glass-bg: rgba(248,250,252,0.8);
+  --glass-border: rgba(0,0,0,0.1);
+}
+html.theme-light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+html.theme-light .quran-text { color: #1e293b; }
+html.theme-light .arabic-text { color: #1e293b; }
+
+/* Thème sépia */
+html.theme-sepia {
+  --color-bg: #f4e9d0;
+  --color-surface: #ede0c4;
+  --color-surface-2: #e8d8b8;
+  --color-text: #3d2b1f;
+  --color-text-muted: #6b4c36;
+  --color-border: rgba(61,43,31,0.15);
+  --glass-bg: rgba(244,233,208,0.8);
+  --glass-border: rgba(61,43,31,0.12);
+}
+html.theme-sepia body {
+  background-color: #f4e9d0;
+  color: #3d2b1f;
+}
+html.theme-sepia .quran-text { color: #2d1b0e; }
+html.theme-sepia .arabic-text { color: #2d1b0e; }
+
+/* Verset actif en lecture */
+.ayah-active {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-left: 3px solid #10b981 !important;
+}
+
+/* Animation highlight verset */
+@keyframes verseGlow {
+  0%   { background: rgba(16,185,129,0.18); }
+  100% { background: rgba(16,185,129,0.04); }
+}
+.ayah-just-played {
+  animation: verseGlow 1.5s ease-out forwards;
+}
+
+/* Tajweed colors */
+.tajweed-ghunnah    { color: #a78bfa; }
+.tajweed-idgham     { color: #60a5fa; }
+.tajweed-ikhfa      { color: #34d399; }
+.tajweed-qalqalah   { color: #fbbf24; }
+.tajweed-madd       { color: #f87171; }
+.tajweed-shaddah    { color: #e879f9; }
+.tajweed-lam-shams  { color: #38bdf8; }
+.tajweed-ham-wasl   { color: #9ca3af; }

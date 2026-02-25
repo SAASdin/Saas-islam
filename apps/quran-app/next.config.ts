@@ -1,13 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Support RTL et i18n futur
-  i18n: {
-    locales: ['fr', 'ar', 'en'],
-    defaultLocale: 'fr',
-    localeDetection: false,
-  },
-
+  // Note : i18n dans App Router se gère via middleware, pas via next.config
   // Images autorisées depuis nos domaines
   images: {
     remotePatterns: [

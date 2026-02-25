@@ -223,7 +223,7 @@ export async function getVersesByPage(
     fields: 'text_uthmani,text_imlaei,verse_key,juz_number,page_number',
     per_page: '50',
   })
-  return qdcFetch(`/pages/${pageNumber}/verses?${params}`, 86400)
+  return qdcFetch(`/verses/by_page/${pageNumber}?${params}`, 86400)
 }
 
 /** Un verset spécifique par clé (ex: "1:1") */

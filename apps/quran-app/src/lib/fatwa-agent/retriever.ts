@@ -76,10 +76,7 @@ export async function retrievePassages(query: RetrievalQuery): Promise<Retrieved
   const keywords = extractKeywords(question);
   if (keywords.length === 0) return [];
 
-  // Construire la requête tsquery (mots-clés avec OR)
-  const tsQuery = keywords.map(k => `${k}:*`).join(' | ');
-
-  // ── Requête PostgreSQL full-text ─────────────────────────────
+  // ── Requête PostgreSQL ────────────────────────────────────────
   // On cherche dans answer_arabic ET chapter_hint
   // On rank par ts_rank (pertinence) + filtre madhab si fourni
   const madhabFilter = madhab ? `AND f.madhab = '${madhab.replace(/'/g, "''")}'` : '';
@@ -101,6 +98,30 @@ export async function retrievePassages(query: RetrievalQuery): Promise<Retrieved
     ? `+ CASE WHEN ${canonicals.map(s => `fs.name_arabic LIKE '%${s}%'`).join(' OR ')} THEN 0.3 ELSE 0 END`
     : '';
 
+  // PostgreSQL tsvector ne tokenise pas l'arabe Unicode → ILIKE pour l'arabe
+  // Pour chaque mot-clé, on construit une condition ILIKE OR
+  const isArabicQuery = isArabic(keywords.join(''));
+
+  let whereKeywords: string;
+  let sqlParams: (string | number)[];
+
+  if (isArabicQuery) {
+    // Recherche arabe : ILIKE sur chaque mot-clé
+    const ilikeConditions = keywords
+      .map((_, i) => `(f.answer_arabic ILIKE $${i + 1} OR COALESCE(f.chapter_hint,'') ILIKE $${i + 1})`)
+      .join(' OR ');
+    whereKeywords = `(${ilikeConditions})`;
+    sqlParams = [...keywords.map(k => `%${k}%`), limit];
+  } else {
+    // Recherche française : full-text
+    const tsQuery = keywords.map(k => `${k}:*`).join(' | ');
+    whereKeywords = `to_tsvector('french', COALESCE(f.answer_fr,'') || ' ' || COALESCE(f.chapter_hint,''))
+        @@ to_tsquery('french', $1)`;
+    sqlParams = [tsQuery, limit];
+  }
+
+  const limitParam = `$${sqlParams.length}`;
+
   const sql = `
     SELECT
       f.id,
@@ -117,27 +138,27 @@ export async function retrievePassages(query: RetrievalQuery): Promise<Retrieved
       fb.title_fr     AS book_title_fr,
       fb.shamela_local_id,
       (
-        ts_rank(
-          to_tsvector('simple', f.answer_arabic || ' ' || COALESCE(f.chapter_hint, '')),
-          to_tsquery('simple', $1)
-        )
+        1.0
         ${canonicalBoost}
       ) AS rank
     FROM app.fatwas f
     JOIN app.fatwa_scholars fs ON f.scholar_id = fs.id
     JOIN app.fatwa_books    fb ON f.book_id    = fb.id
     WHERE
-      to_tsvector('simple', f.answer_arabic || ' ' || COALESCE(f.chapter_hint, ''))
-        @@ to_tsquery('simple', $1)
+      ${whereKeywords}
       ${madhabFilter}
       ${domainFilter}
       AND length(f.answer_arabic) > 100
-    ORDER BY rank DESC
-    LIMIT $2
+    ORDER BY
+      CASE WHEN ${canonicals.length > 0
+        ? canonicals.map(s => `fs.name_arabic LIKE '%${s}%'`).join(' OR ')
+        : 'false'} THEN 0 ELSE 1 END,
+      f.id ASC
+    LIMIT ${limitParam}
   `;
 
   try {
-    const rows = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(sql, tsQuery, limit);
+    const rows = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(sql, ...sqlParams);
 
     return rows.map((r, i) => ({
       id: r.id as number,

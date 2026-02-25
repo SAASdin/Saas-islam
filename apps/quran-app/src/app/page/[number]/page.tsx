@@ -46,12 +46,7 @@ export default async function MushafPageRoute({ params }: Props) {
             </Link>
           )}
 
-          {/* Sélecteur direct */}
-          <form method="get" action="" onSubmit={(e) => {
-            e.preventDefault()
-          }}>
-            <span className="text-slate-600 text-sm">/ 604</span>
-          </form>
+          <span className="text-slate-600 text-sm">/ 604</span>
 
           {pageNum < 604 && (
             <Link href={`/page/${pageNum + 1}`}

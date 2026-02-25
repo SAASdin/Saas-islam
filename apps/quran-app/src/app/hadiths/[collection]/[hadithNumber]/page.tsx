@@ -13,6 +13,8 @@ import Navigation from '@/components/Navigation'
 import ShareButton from '@/components/hadith/ShareButton'
 import type { Metadata } from 'next'
 
+// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
+export const dynamic = 'force-dynamic'
 interface Props {
   params: Promise<{ collection: string; hadithNumber: string }>
 }

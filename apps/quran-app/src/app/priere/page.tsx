@@ -9,6 +9,8 @@ import PrayerCountdown from '@/components/prayer/PrayerCountdown'
 import Navigation from '@/components/Navigation'
 import type { Metadata } from 'next'
 
+// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Horaires de Prière — مواقيت الصلاة',
   description: 'Horaires de prière pour Paris et la France — méthode UOIF',

@@ -1,6 +1,6 @@
 /* ============================================================
-   globals.css — Saas-islam : Quran App
-   Police islamique + variables + styles de base RTL
+   globals.css — Saas-islam : Quran App — Premium Dark Theme
+   Police islamique + variables dark premium + styles de base RTL
    ============================================================ */
 
 @import "tailwindcss";
@@ -8,46 +8,39 @@
 @import "@fontsource/amiri/700.css";
 
 /* ════════════════════════════════════════════
-   Variables CSS islamiques
+   Variables CSS — Thème dark premium islamique
    ════════════════════════════════════════════ */
 :root {
-  /* Couleurs */
-  --color-islam-green: #1a7f4b;
-  --color-gold: #c9a227;
-  --color-cream: #fdf8ed;
-  --color-text: #1a1a1a;
-  --color-text-muted: #6b7280;
-  --color-bg: #ffffff;
-  --color-surface: #f9fafb;
-  --color-border: #e5e7eb;
+  /* Fond et surfaces */
+  --color-bg: #0a0f1e;
+  --color-surface: #111827;
+  --color-surface-2: #1a2235;
+  --color-border: rgba(255,255,255,0.08);
+
+  /* Couleurs islamiques */
+  --color-islam-green: #15803d;
+  --color-islam-green-light: #22c55e;
+  --color-gold: #d4af37;
+  --color-gold-light: #f0d060;
+
+  /* Texte */
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
 
   /* Polices */
-  --font-amiri: 'Amiri', Georgia, serif;
+  --font-amiri: 'Amiri', 'Scheherazade New', Georgia, serif;
 
   /* Taille police arabe (ajustable par utilisateur) */
-  --arabic-font-size: 1.5rem;    /* 24px défaut */
-  --arabic-line-height: 2.5rem;
+  --arabic-font-size: 1.8rem;
+  --arabic-line-height: 3.2rem;
 
   /* Transitions */
-  --transition-base: 150ms ease-in-out;
-}
+  --transition-base: 200ms ease-in-out;
 
-/* Mode sombre */
-.dark {
-  --color-text: #f9fafb;
-  --color-text-muted: #9ca3af;
-  --color-bg: #111827;
-  --color-surface: #1f2937;
-  --color-border: #374151;
-  --color-cream: #1a1a2e;
-}
-
-/* Mode sépia (lecture Coran) */
-.sepia {
-  --color-bg: #fdf8ed;
-  --color-surface: #f5efd8;
-  --color-text: #2c1a0e;
-  --color-text-muted: #7c5c3e;
+  /* Glassmorphism */
+  --glass-bg: rgba(17, 24, 39, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 12px;
 }
 
 /* ════════════════════════════════════════════
@@ -71,6 +64,44 @@ body {
 }
 
 /* ════════════════════════════════════════════
+   Utilitaires Glass & Premium
+   ════════════════════════════════════════════ */
+
+/* Glassmorphism card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+}
+
+/* Gradient text vert → doré */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-islam-green-light) 0%, var(--color-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Motif géométrique islamique SVG inline */
+.islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='rgba(212,175,55,0.07)' stroke-width='0.5'%3E%3Cpolygon points='30,2 56,16 56,44 30,58 4,44 4,16'/%3E%3Cpolygon points='30,10 50,21 50,39 30,50 10,39 10,21'/%3E%3Cline x1='30' y1='2' x2='30' y2='10'/%3E%3Cline x1='56' y1='16' x2='50' y2='21'/%3E%3Cline x1='56' y1='44' x2='50' y2='39'/%3E%3Cline x1='30' y1='58' x2='30' y2='50'/%3E%3Cline x1='4' y1='44' x2='10' y2='39'/%3E%3Cline x1='4' y1='16' x2='10' y2='21'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Étoile islamique 8 branches en SVG */
+.islamic-star-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='rgba(21,128,61,0.06)' stroke='rgba(212,175,55,0.05)' stroke-width='0.5'%3E%3Cpolygon points='40,5 47,27 69,20 52,37 69,55 47,48 40,70 33,48 11,55 28,37 11,20 33,27'/%3E%3Ccircle cx='40' cy='40' r='12' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 80px 80px;
+}
+
+/* Dégradé premium fond hero */
+.hero-gradient {
+  background: linear-gradient(135deg, #0a0f1e 0%, #0d1a2e 30%, #0a1a0e 70%, #0a0f1e 100%);
+}
+
+/* ════════════════════════════════════════════
    Texte arabe — RÈGLES STRICTES
    Toujours appliquer ces classes sur le texte islamique
    ════════════════════════════════════════════ */
@@ -83,7 +114,6 @@ body {
   unicode-bidi: embed;
   font-size: var(--arabic-font-size);
   line-height: var(--arabic-line-height);
-  /* Empêcher la sélection partielle d'un verset */
   word-break: keep-all;
   overflow-wrap: normal;
 }
@@ -98,7 +128,6 @@ body {
   line-height: var(--arabic-line-height);
   font-weight: 400;
   color: var(--color-text);
-  /* Espacement entre les lettres arabes — ne JAMAIS modifier letter-spacing sur du texte coranique */
   letter-spacing: 0;
   word-spacing: 0.1em;
 }
@@ -108,25 +137,28 @@ body {
   font-family: var(--font-amiri);
   direction: rtl;
   text-align: center;
-  font-size: 2rem;
-  line-height: 3.5rem;
-  color: var(--color-islam-green);
+  font-size: 2.2rem;
+  line-height: 3.8rem;
+  color: var(--color-gold);
   padding: 1rem 0;
+  text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
 }
 
-/* Numéro de verset — badge circulaire */
+/* Numéro de verset — badge doré circulaire */
 .ayah-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.2rem;
+  height: 2.2rem;
   border-radius: 50%;
-  background-color: var(--color-islam-green);
-  color: white;
+  background: linear-gradient(135deg, var(--color-gold) 0%, #b8962a 100%);
+  color: #0a0f1e;
   font-size: 0.75rem;
   font-family: var(--font-amiri);
+  font-weight: 700;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
 /* Label traduction automatique — OBLIGATOIRE sur toute trad auto */
@@ -135,9 +167,9 @@ body {
   align-items: center;
   gap: 0.25rem;
   padding: 0.125rem 0.5rem;
-  background-color: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
+  background-color: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 9999px;
   font-size: 0.625rem;
   font-family: var(--font-amiri);
@@ -156,18 +188,89 @@ body {
   background: var(--color-surface);
 }
 .scrollbar-islamic::-webkit-scrollbar-thumb {
-  background: var(--color-islam-green);
+  background: var(--color-gold);
   border-radius: 2px;
 }
 
 /* ════════════════════════════════════════════
-   Animations
+   Animations premium
    ════════════════════════════════════════════ */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(212,175,55,0.2); }
+  50% { box-shadow: 0 0 25px rgba(212,175,55,0.5); }
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════════
+   Premium hover effects
+   ════════════════════════════════════════════ */
+.hover-glass:hover {
+  background: rgba(21, 128, 61, 0.08);
+  border-color: rgba(212, 175, 55, 0.2) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* Premium card border effect */
+.premium-card {
+  background: linear-gradient(135deg, rgba(26,34,53,0.8) 0%, rgba(17,24,39,0.9) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+  border-color: rgba(212,175,55,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,175,55,0.1);
+  transform: translateY(-2px);
+}
+
+/* Gold accent line */
+.gold-line {
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  height: 1px;
+  opacity: 0.4;
+}
+
+/* Navigation active link */
+.nav-active {
+  color: var(--color-gold) !important;
+  position: relative;
+}
+
+.nav-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-gold);
+  border-radius: 1px;
 }

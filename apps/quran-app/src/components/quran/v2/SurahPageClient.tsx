@@ -166,6 +166,13 @@ export default function SurahPageClient({ chapter, verses }: SurahPageClientProp
             fontSize={fontSize}
             isActive={currentVerse === verse.verse_key && isPlaying}
             onOpenTafsir={(key) => { setTafsirVerse(key); setTafsirOpen(true) }}
+            meta={{
+              juz_number: verse.juz_number,
+              hizb_number: verse.hizb_number,
+              rub_el_hizb_number: verse.rub_el_hizb_number,
+              page_number: verse.page_number,
+              sajdah_number: verse.sajdah_number,
+            }}
           />
         ))}
       </div>

@@ -1,255 +1,225 @@
 'use client'
 // ============================================================
-// /settings — Paramètres utilisateur persistants
+// Settings page — Paramètres complets NoorApp
 // ============================================================
 import { useSettings } from '@/store/settings'
-import type { QuranFont, Theme, ReadingMode, PlaybackSpeed } from '@/store/settings'
+import { ALL_TRANSLATIONS } from '@/lib/translations-catalog'
+import { RECITERS } from '@/lib/quran-cdn-api'
+import { useState } from 'react'
 import Link from 'next/link'
-
-const FONT_OPTIONS: { value: QuranFont; label: string; preview: string }[] = [
-  { value: 'kfgqpc', label: 'KFGQPC Uthmani', preview: 'بِسْمِ اللَّهِ' },
-  { value: 'uthmani', label: 'Uthmani Standard', preview: 'بسم الله' },
-  { value: 'simple',  label: 'Simplifié', preview: 'بسم الله' },
-]
-
-const THEME_OPTIONS: { value: Theme; label: string; bg: string; text: string }[] = [
-  { value: 'dark',  label: 'Sombre',   bg: '#0a0f1e',  text: 'text-white'        },
-  { value: 'light', label: 'Clair',    bg: '#f8fafc',  text: 'text-slate-900'    },
-  { value: 'sepia', label: 'Sépia',    bg: '#f4e9d0',  text: 'text-[#3d2b1f]'   },
-]
-
-const SPEED_OPTIONS: PlaybackSpeed[] = [0.5, 0.75, 1, 1.25, 1.5, 2]
-
-const TRANSLATION_OPTIONS = [
-  { id: 31,  label: '🇫🇷 Hamidullah (FR)' },
-  { id: 136, label: '🇫🇷 Montada Islamic Foundation (FR)' },
-  { id: 779, label: '🇫🇷 Rashid Maash (FR)' },
-  { id: 20,  label: '🇬🇧 Saheeh International (EN)' },
-  { id: 85,  label: '🇬🇧 Abdel Haleem (EN)' },
-  { id: 84,  label: '🇬🇧 T. Usmani (EN)' },
-]
 
 export default function SettingsPage() {
   const {
-    quranFont, setFont,
     fontSize, setFontSize,
-    showWordByWord, toggleWordByWord,
-    showTransliteration, toggleTransliteration,
-    showTranslation, toggleTranslation,
-    primaryTranslation, setPrimaryTranslation,
-    selectedTafsirId, setTafsirId,
-    showTafsir, toggleTafsir,
-    tafsirPosition, setTafsirPosition,
-    playbackSpeed, setPlaybackSpeed,
-    repeatMode, setRepeatMode,
-    autoScroll,
     theme, setTheme,
     readingMode, setReadingMode,
-    language, setLanguage,
+    primaryTranslation, setPrimaryTranslation,
+    showTranslation, toggleTranslation,
+    selectedTranslations, toggleTranslationId,
+    playbackSpeed, setPlaybackSpeed,
+    reciterSlug, setReciter,
+    autoScroll, setAutoScroll,
   } = useSettings()
 
-  function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
-    return (
-      <div className="bg-white/3 border border-white/10 rounded-2xl p-6 mb-4">
-        <h2 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-          <span>{icon}</span> {title}
-        </h2>
-        {children}
-      </div>
-    )
+  const [saved, setSaved] = useState(false)
+
+  function save() {
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
   }
 
-  function Row({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-      <div className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
-        <p className="text-slate-300 text-sm">{label}</p>
-        <div className="shrink-0">{children}</div>
-      </div>
-    )
+  function resetAll() {
+    if (window.confirm('Réinitialiser tous les paramètres ?')) {
+      localStorage.removeItem('noorapp-settings-v1')
+      window.location.reload()
+    }
   }
 
-  function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-    return (
-      <button
-        onClick={onChange}
-        className={`relative w-11 h-6 rounded-full transition-colors ${checked ? 'bg-emerald-500' : 'bg-white/10'}`}
-      >
-        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
-      </button>
-    )
-  }
+  const primaryMeta = ALL_TRANSLATIONS.find(t => t.id === primaryTranslation)
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-3 mb-8">
-        <Link href="/" className="p-2 text-slate-400 hover:text-white transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </Link>
-        <h1 className="text-2xl font-bold text-white">Paramètres</h1>
-      </div>
-
-      {/* ── Apparence ──────────────────────────── */}
-      <Section title="Apparence" icon="🎨">
-        <Row label="Thème">
-          <div className="flex items-center gap-2">
-            {THEME_OPTIONS.map(t => (
-              <button
-                key={t.value}
-                onClick={() => setTheme(t.value)}
-                className={`w-8 h-8 rounded-full border-2 transition-all ${
-                  theme === t.value ? 'border-emerald-400 scale-110' : 'border-white/20'
-                }`}
-                style={{ backgroundColor: t.bg }}
-                title={t.label}
-              />
-            ))}
-          </div>
-        </Row>
-
-        <Row label="Mode lecture">
-          <div className="flex bg-white/5 rounded-lg p-0.5">
-            {([
-              { value: 'ayah',         label: 'Verset'    },
-              { value: 'translation',  label: 'Traduction'},
-              { value: 'word-by-word', label: 'Mot/mot'   },
-            ] as const).map(m => (
-              <button
-                key={m.value}
-                onClick={() => setReadingMode(m.value)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                  readingMode === m.value ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </Row>
-      </Section>
-
-      {/* ── Texte coranique ───────────────────── */}
-      <Section title="Texte coranique" icon="📖">
-        <Row label="Police">
-          <select
-            value={quranFont}
-            onChange={e => setFont(e.target.value as QuranFont)}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white"
-          >
-            {FONT_OPTIONS.map(f => (
-              <option key={f.value} value={f.value}>{f.label}</option>
-            ))}
-          </select>
-        </Row>
-
-        <Row label="Taille de police">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setFontSize(fontSize - 2)} className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-md text-white text-sm">−</button>
-            <span className="text-white text-sm w-8 text-center">{fontSize}</span>
-            <button onClick={() => setFontSize(fontSize + 2)} className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-md text-white text-sm">+</button>
-          </div>
-        </Row>
-
-        {/* Prévisualisation */}
-        <div className="mt-4 p-4 bg-white/3 rounded-xl text-center">
-          <p
-            className="quran-text text-amber-100/80"
-            style={{ fontSize: `${fontSize}px` }}
-            dir="rtl"
-            lang="ar"
-          >
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-          </p>
-          <p className="text-slate-500 text-xs mt-2">Aperçu — {fontSize}px</p>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Paramètres</h1>
+          <p className="text-slate-500 text-sm mt-0.5">NoorApp · Personnalisation</p>
         </div>
-
-        <Row label="Traduction"><Toggle checked={showTranslation} onChange={toggleTranslation} /></Row>
-        <Row label="Mot-à-mot"><Toggle checked={showWordByWord} onChange={toggleWordByWord} /></Row>
-        <Row label="Translitération"><Toggle checked={showTransliteration} onChange={toggleTransliteration} /></Row>
-      </Section>
-
-      {/* ── Traductions ───────────────────────── */}
-      <Section title="Traductions" icon="🌍">
-        <Row label="Traduction principale">
-          <select
-            value={primaryTranslation}
-            onChange={e => setPrimaryTranslation(Number(e.target.value))}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white"
-          >
-            {TRANSLATION_OPTIONS.map(t => (
-              <option key={t.id} value={t.id}>{t.label}</option>
-            ))}
-          </select>
-        </Row>
-      </Section>
-
-      {/* ── Tafsir ────────────────────────────── */}
-      <Section title="Tafsir" icon="📚">
-        <Row label="Afficher le Tafsir"><Toggle checked={showTafsir} onChange={toggleTafsir} /></Row>
-        <Row label="Position">
-          <div className="flex bg-white/5 rounded-lg p-0.5">
-            {(['inline', 'sidebar'] as const).map(p => (
-              <button key={p} onClick={() => setTafsirPosition(p)}
-                className={`px-3 py-1 rounded-md text-xs transition-colors ${
-                  tafsirPosition === p ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'
-                }`}>
-                {p === 'inline' ? 'Inline' : 'Panneau'}
-              </button>
-            ))}
-          </div>
-        </Row>
-      </Section>
-
-      {/* ── Audio ─────────────────────────────── */}
-      <Section title="Audio" icon="🎵">
-        <Row label="Vitesse de lecture">
-          <div className="flex items-center gap-1">
-            {SPEED_OPTIONS.map(s => (
-              <button
-                key={s}
-                onClick={() => setPlaybackSpeed(s)}
-                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                  playbackSpeed === s ? 'bg-emerald-600 text-white' : 'bg-white/5 text-slate-400 hover:text-white'
-                }`}
-              >
-                {s}×
-              </button>
-            ))}
-          </div>
-        </Row>
-
-        <Row label="Mode répétition">
-          <div className="flex items-center gap-1">
-            {(['none', 'verse', 'surah'] as const).map(m => (
-              <button
-                key={m}
-                onClick={() => setRepeatMode(m)}
-                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                  repeatMode === m ? 'bg-emerald-600 text-white' : 'bg-white/5 text-slate-400 hover:text-white'
-                }`}
-              >
-                {m === 'none' ? 'Aucun' : m === 'verse' ? 'Verset' : 'Sourate'}
-              </button>
-            ))}
-          </div>
-        </Row>
-      </Section>
-
-      {/* Reset */}
-      <div className="text-center mt-6">
-        <button
-          onClick={() => {
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('noorapp-settings-v1')
-              window.location.reload()
-            }
-          }}
-          className="text-sm text-slate-600 hover:text-red-400 transition-colors"
-        >
-          Réinitialiser tous les paramètres
+        <button onClick={save}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            saved ? 'bg-emerald-500 text-white' : 'bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300'
+          }`}>
+          {saved ? '✓ Sauvegardé' : 'Sauvegarder'}
         </button>
       </div>
+
+      <div className="space-y-6">
+
+        {/* ── Apparence ── */}
+        <Section title="Apparence" icon="🎨">
+          {/* Thème */}
+          <SettingRow label="Thème" description="Couleur d'arrière-plan">
+            <div className="flex gap-2">
+              {([['dark','Sombre','🌙'],['light','Clair','☀️'],['sepia','Sépia','📜']] as const).map(([t,l,i]) => (
+                <button key={t} onClick={() => setTheme(t)}
+                  className={`flex flex-col items-center px-3 py-2 rounded-lg border text-xs transition-all ${
+                    theme === t ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'border-white/10 bg-white/4 text-slate-400 hover:bg-white/8'
+                  }`}>
+                  <span className="text-lg">{i}</span>
+                  <span>{l}</span>
+                </button>
+              ))}
+            </div>
+          </SettingRow>
+
+          {/* Taille police */}
+          <SettingRow label="Taille du texte arabe" description={`Actuel : ${fontSize}px`}>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setFontSize(Math.max(16, fontSize - 2))}
+                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors">−</button>
+              <span className="arabic-text text-white text-lg w-16 text-center" dir="rtl" lang="ar"
+                style={{ fontSize: `${fontSize}px` }}>بسم الله</span>
+              <button onClick={() => setFontSize(Math.min(40, fontSize + 2))}
+                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors">+</button>
+            </div>
+          </SettingRow>
+        </Section>
+
+        {/* ── Lecture ── */}
+        <Section title="Mode de lecture" icon="📖">
+          <SettingRow label="Affichage" description="Comment les versets sont présentés">
+            <div className="flex gap-2">
+              {([['ayah','Verset','📄'],['translation','Traduction','🌍'],['word-by-word','Mot/mot','🔤']] as const).map(([m,l,i]) => (
+                <button key={m} onClick={() => setReadingMode(m)}
+                  className={`flex flex-col items-center px-3 py-2 rounded-lg border text-xs transition-all ${
+                    readingMode === m ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'border-white/10 bg-white/4 text-slate-400 hover:bg-white/8'
+                  }`}>
+                  <span className="text-lg">{i}</span>
+                  <span>{l}</span>
+                </button>
+              ))}
+            </div>
+          </SettingRow>
+
+          <SettingRow label="Défilement automatique" description="Suivre le verset en cours de lecture">
+            <Toggle value={autoScroll} onChange={setAutoScroll} />
+          </SettingRow>
+
+          <SettingRow label="Afficher la traduction" description="Afficher/masquer par défaut">
+            <Toggle value={showTranslation} onChange={() => toggleTranslation()} />
+          </SettingRow>
+        </Section>
+
+        {/* ── Traductions ── */}
+        <Section title="Traductions" icon="🌍">
+          <SettingRow label="Traduction principale" description="Affichée en priorité dans les versets">
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm">{primaryMeta?.flag} {primaryMeta?.name}</span>
+              <Link href="/surah/1" className="text-xs text-emerald-400 hover:text-emerald-300">
+                Changer via toolbar →
+              </Link>
+            </div>
+          </SettingRow>
+          <SettingRow label="Traductions actives" description={`${selectedTranslations.length} traduction(s) affichée(s)`}>
+            <div className="flex flex-wrap gap-1.5 max-w-sm">
+              {selectedTranslations.map(id => {
+                const t = ALL_TRANSLATIONS.find(tr => tr.id === id)
+                return t ? (
+                  <button key={id} onClick={() => toggleTranslationId(id)}
+                    className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 rounded-full text-xs hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors">
+                    {t.flag} {t.author} ✕
+                  </button>
+                ) : null
+              })}
+            </div>
+          </SettingRow>
+        </Section>
+
+        {/* ── Audio ── */}
+        <Section title="Audio" icon="🎵">
+          <SettingRow label="Récitateur par défaut" description="Pour la lecture verset par verset">
+            <select value={reciterSlug} onChange={e => setReciter(0, e.target.value)}
+              className="bg-white/5 border border-white/15 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+              {RECITERS.map(r => (
+                <option key={r.id} value={r.slug} className="bg-gray-900">{r.name}</option>
+              ))}
+            </select>
+          </SettingRow>
+
+          <SettingRow label="Vitesse de lecture" description={`Actuel : ${playbackSpeed}×`}>
+            <div className="flex gap-1.5">
+              {[0.5, 0.75, 1, 1.25, 1.5].map(s => (
+                <button key={s} onClick={() => setPlaybackSpeed(s as 0.5 | 0.75 | 1 | 1.25 | 1.5)}
+                  className={`px-3 py-1.5 rounded-lg text-xs border transition-all ${
+                    playbackSpeed === s ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'border-white/10 bg-white/4 text-slate-400 hover:bg-white/8'
+                  }`}>
+                  {s}×
+                </button>
+              ))}
+            </div>
+          </SettingRow>
+        </Section>
+
+        {/* ── Données ── */}
+        <Section title="Données & Confidentialité" icon="🔐">
+          <SettingRow label="Favoris" description="Versets sauvegardés localement">
+            <button onClick={() => { localStorage.removeItem('noorapp-favorites'); save() }}
+              className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition-colors">
+              Effacer les favoris
+            </button>
+          </SettingRow>
+          <SettingRow label="Progression" description="Historique de lecture et streaks">
+            <button onClick={() => { localStorage.removeItem('noorapp-streak-v1'); localStorage.removeItem('noorapp-last-read'); save() }}
+              className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition-colors">
+              Effacer la progression
+            </button>
+          </SettingRow>
+          <SettingRow label="Tous les paramètres" description="Réinitialiser à l'état initial">
+            <button onClick={resetAll}
+              className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition-colors">
+              Réinitialiser tout
+            </button>
+          </SettingRow>
+        </Section>
+
+      </div>
+
+      {/* Footer */}
+      <div className="mt-8 pt-6 border-t border-white/10 text-center">
+        <p className="text-slate-600 text-xs">NoorApp · Plateforme islamique SaaS</p>
+        <p className="text-slate-700 text-xs mt-1">وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ</p>
+      </div>
     </div>
+  )
+}
+
+function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white/3 border border-white/10 rounded-2xl p-5">
+      <h2 className="text-white font-semibold flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+        <span>{icon}</span> {title}
+      </h2>
+      <div className="space-y-4">{children}</div>
+    </div>
+  )
+}
+
+function SettingRow({ label, description, children }: { label: string; description: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="shrink-0">
+        <p className="text-white text-sm font-medium">{label}</p>
+        <p className="text-slate-500 text-xs mt-0.5">{description}</p>
+      </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  )
+}
+
+function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button onClick={() => onChange(!value)}
+      className={`relative w-12 h-6 rounded-full transition-all ${value ? 'bg-emerald-500' : 'bg-white/20'}`}>
+      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${value ? 'left-7' : 'left-1'}`} />
+    </button>
   )
 }

@@ -9,7 +9,7 @@ import { useState, useRef, useEffect } from 'react'
 const NAV_LINKS = [
   { href: '/',            label: 'Accueil'      },
   { href: '/surah',       label: 'Coran'        },
-  { href: '/mushaf/1',    label: 'Mushaf'       },
+  { href: '/masahif',     label: 'Masahif'      },
   { href: '/juz/1',       label: 'Juz'          },
   { href: '/ulum',        label: "'Ulum"        },
   { href: '/ma3ajim',     label: 'Maʿājim'      },

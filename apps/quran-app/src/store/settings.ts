@@ -54,6 +54,7 @@ interface SettingsState {
   toggleWordByWord: () => void
   toggleTransliteration: () => void
   toggleTranslation: () => void
+  setAutoScroll: (v: boolean) => void
   setPrimaryTranslation: (id: number) => void
   setSecondaryTranslation: (id: number | null) => void
   toggleTranslationId: (id: number) => void
@@ -117,6 +118,7 @@ export const useSettings = create<SettingsState>()(
       toggleWordByWord: () => set((s) => ({ showWordByWord: !s.showWordByWord })),
       toggleTransliteration: () => set((s) => ({ showTransliteration: !s.showTransliteration })),
       toggleTranslation: () => set((s) => ({ showTranslation: !s.showTranslation })),
+      setAutoScroll: (v) => set({ autoScroll: v }),
       setPrimaryTranslation: (id) => set((s) => ({
         primaryTranslation: id,
         selectedTranslations: s.selectedTranslations.includes(id)

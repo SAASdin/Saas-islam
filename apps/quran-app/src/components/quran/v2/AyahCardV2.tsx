@@ -32,6 +32,14 @@ interface AyahCardV2Props {
   fontSize?: number
   isActive?: boolean
   onOpenTafsir?: (verseKey: string) => void
+  meta?: {
+    juz_number?: number
+    hizb_number?: number
+    rub_el_hizb_number?: number
+    page_number?: number
+    sajdah_number?: number | null
+    manzil_number?: number
+  }
 }
 
 export default function AyahCardV2({
@@ -48,6 +56,7 @@ export default function AyahCardV2({
   fontSize,
   isActive,
   onOpenTafsir,
+  meta,
 }: AyahCardV2Props) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -136,8 +145,30 @@ export default function AyahCardV2({
             </span>
           </div>
 
-          {/* Indicateur sajda (si applicable) */}
-          <span className="text-xs text-slate-600">{verseKey}</span>
+          {/* Métadonnées */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs text-slate-600 font-mono">{verseKey}</span>
+            {meta?.sajdah_number != null && (
+              <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full">
+                ۩ سجدة {meta.sajdah_number}
+              </span>
+            )}
+            {meta?.juz_number && (
+              <span className="text-[10px] text-slate-600 bg-white/4 px-1.5 py-0.5 rounded-full hidden sm:inline">
+                ج{meta.juz_number}
+              </span>
+            )}
+            {meta?.hizb_number && meta.hizb_number % 1 === 0 && (
+              <span className="text-[10px] text-slate-600 bg-white/4 px-1.5 py-0.5 rounded-full hidden sm:inline">
+                ح{meta.hizb_number}
+              </span>
+            )}
+            {meta?.page_number && (
+              <span className="text-[10px] text-slate-600 hidden md:inline">
+                p.{meta.page_number}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Actions (visible au hover ou sur mobile) */}

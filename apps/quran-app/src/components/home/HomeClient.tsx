@@ -1,295 +1,216 @@
 'use client'
 // ============================================================
-// HomeClient.tsx — Page d'accueil interactive
+// HomeClient.tsx — Page d'accueil
 // ============================================================
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import type { QdcChapter } from '@/lib/quran-cdn-api'
+import { sanitizeTranslation } from '@/lib/sanitize'
+import type { QdcChapter, QdcVerse } from '@/lib/quran-cdn-api'
 
 interface Props {
   chapters: QdcChapter[]
+  verseOfDay: QdcVerse | null
+  lastRead: { surahId: number; ayah: number; surahName: string } | null
 }
 
-type TabMode = 'surah' | 'juz' | 'revelation'
+const QUICK_LINKS = [
+  { href: '/mushaf/1',  icon: '🕌', label: 'Mushaf',     sub: '604 pages' },
+  { href: '/ulum',      icon: '📚', label: "'Ulum",      sub: '7 sciences' },
+  { href: '/ma3ajim',   icon: '🔍', label: 'Ma\'ājim',   sub: 'Dictionnaire' },
+  { href: '/plan',      icon: '📅', label: 'Plan',       sub: '30/90/365j' },
+  { href: '/memorize',  icon: '🧠', label: 'Mémoriser',  sub: 'SRS Anki' },
+  { href: '/radio',     icon: '🎵', label: 'Radio',      sub: 'Coran live' },
+  { href: '/progress',  icon: '📊', label: 'Progrès',    sub: 'Statistiques' },
+  { href: '/search',    icon: '🔎', label: 'Recherche',  sub: '6236 versets' },
+]
 
-// Données juz : première sourate de chaque juz
-const JUZ_INFO: Record<number, { surahName: string; startVerse: string }> = {
-  1: { surahName: 'Al-Fatihah', startVerse: '1:1' },
-  2: { surahName: 'Al-Baqarah', startVerse: '2:142' },
-  3: { surahName: 'Al-Baqarah', startVerse: '2:253' },
-  4: { surahName: 'Ali \'Imran', startVerse: '3:92' },
-  5: { surahName: 'An-Nisa', startVerse: '4:24' },
-  6: { surahName: 'An-Nisa', startVerse: '4:148' },
-  7: { surahName: 'Al-Ma\'idah', startVerse: '5:82' },
-  8: { surahName: 'Al-An\'am', startVerse: '6:111' },
-  9: { surahName: 'Al-A\'raf', startVerse: '7:87' },
-  10: { surahName: 'Al-Anfal', startVerse: '8:41' },
-  11: { surahName: 'At-Tawbah', startVerse: '9:93' },
-  12: { surahName: 'Hud', startVerse: '11:6' },
-  13: { surahName: 'Yusuf', startVerse: '12:53' },
-  14: { surahName: 'Al-Hijr', startVerse: '15:1' },
-  15: { surahName: 'Al-Isra', startVerse: '17:1' },
-  16: { surahName: 'Al-Kahf', startVerse: '18:75' },
-  17: { surahName: 'Al-Anbya', startVerse: '21:1' },
-  18: { surahName: 'Al-Mu\'minun', startVerse: '23:1' },
-  19: { surahName: 'Al-Furqan', startVerse: '25:21' },
-  20: { surahName: 'An-Naml', startVerse: '27:56' },
-  21: { surahName: 'Al-\'Ankabut', startVerse: '29:46' },
-  22: { surahName: 'Al-Ahzab', startVerse: '33:31' },
-  23: { surahName: 'Ya-Sin', startVerse: '36:28' },
-  24: { surahName: 'Az-Zumar', startVerse: '39:32' },
-  25: { surahName: 'Fussilat', startVerse: '41:47' },
-  26: { surahName: 'Al-Ahqaf', startVerse: '46:1' },
-  27: { surahName: 'Adh-Dhariyat', startVerse: '51:31' },
-  28: { surahName: 'Al-Mujadila', startVerse: '58:1' },
-  29: { surahName: 'Al-Mulk', startVerse: '67:1' },
-  30: { surahName: 'An-Naba', startVerse: '78:1' },
-}
+const JUZ_LIST = Array.from({ length: 30 }, (_, i) => i + 1)
 
-// Verset du jour — change chaque jour selon l'index
-function getDailyVerse(): { key: string; arabic: string; fr: string; ref: string } {
-  const DAILY_VERSES = [
-    { key: '2:255', arabic: 'ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ', fr: 'Allah ! Point de divinité que Lui, le Vivant, Celui qui subsiste par Lui-même', ref: 'Al-Baqarah 2:255 (Ayat al-Kursi)' },
-    { key: '94:5', arabic: 'فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', fr: 'Car avec la difficulté vient certes la facilité.', ref: 'Ash-Sharh 94:5' },
-    { key: '2:286', arabic: 'لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا', fr: 'Allah n\'impose à chaque âme que ce qu\'elle peut supporter.', ref: 'Al-Baqarah 2:286' },
-    { key: '3:200', arabic: 'يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱصْبِرُوا۟', fr: 'Ô les croyants ! Endurez, surpassez en endurance...', ref: 'Ali \'Imran 3:200' },
-    { key: '39:53', arabic: 'قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ', fr: 'Dis : "Ô Mes serviteurs qui avez commis des excès à votre propre détriment, ne désespérez pas de la miséricorde d\'Allah"', ref: 'Az-Zumar 39:53' },
-    { key: '65:3', arabic: 'وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ', fr: 'Et quiconque place sa confiance en Allah, Il lui suffit.', ref: 'At-Talaq 65:3' },
-    { key: '13:28', arabic: 'أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ', fr: 'C\'est par l\'évocation d\'Allah que les cœurs se tranquillisent.', ref: 'Ar-Ra\'d 13:28' },
-  ]
-  const day = Math.floor(Date.now() / 86400000)
-  return DAILY_VERSES[day % DAILY_VERSES.length]
-}
 
-export default function HomeClient({ chapters }: Props) {
-  const [tab, setTab] = useState<TabMode>('surah')
-  const [query, setQuery] = useState('')
-  const [ascending, setAscending] = useState(true)
-  const [lastRead, setLastRead] = useState<string | null>(null)
+export default function HomeClient({ chapters, verseOfDay, lastRead: lastReadProp }: Props) {
+  const [activeTab, setActiveTab] = useState<'surahs' | 'juz' | 'page'>('surahs')
+  const [search, setSearch] = useState('')
+  const [lastRead, setLastRead] = useState<Props['lastRead']>(lastReadProp)
 
   useEffect(() => {
-    const stored = localStorage.getItem('noorapp-last-read')
-    if (stored) setLastRead(stored)
-  }, [])
+    try {
+      const raw = localStorage.getItem('noorapp-last-read')
+      if (raw) {
+        const data = JSON.parse(raw)
+        if (data.surahId && data.ayah) {
+          const ch = chapters.find(c => c.id === data.surahId)
+          setLastRead({ surahId: data.surahId, ayah: data.ayah, surahName: ch?.name_simple ?? `Sourate ${data.surahId}` })
+        }
+      }
+    } catch {}
+  }, [chapters])
 
-  const filteredChapters = useMemo(() => {
-    let list = [...chapters]
+  const filteredChapters = chapters.filter(c =>
+    !search || c.name_simple.toLowerCase().includes(search.toLowerCase()) ||
+    c.name_arabic.includes(search) || String(c.id) === search.trim()
+  )
 
-    if (query.trim()) {
-      const q = query.toLowerCase().trim()
-      list = list.filter(c =>
-        c.name_simple.toLowerCase().includes(q) ||
-        c.name_arabic.includes(query.trim()) ||
-        c.translated_name.name.toLowerCase().includes(q) ||
-        String(c.id).includes(q)
-      )
-    }
-
-    if (tab === 'revelation') {
-      list.sort((a, b) => ascending
-        ? a.revelation_order - b.revelation_order
-        : b.revelation_order - a.revelation_order
-      )
-    } else {
-      list.sort((a, b) => ascending ? a.id - b.id : b.id - a.id)
-    }
-
-    return list
-  }, [chapters, query, tab, ascending])
+  const translation = verseOfDay?.translations?.[0]
 
   return (
-    <div className="max-w-5xl mx-auto px-4">
-      {/* ── Hero ──────────────────────────────────── */}
-      <div className="py-12 text-center">
-        <p
-          className="quran-text text-4xl md:text-5xl text-amber-100/90 mb-4 leading-relaxed"
-          dir="rtl"
-          lang="ar"
-        >
-          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </p>
-        <p className="text-slate-400 text-sm">Au nom d&apos;Allah, le Tout Miséricordieux, le Très Miséricordieux</p>
-      </div>
+    <div className="max-w-4xl mx-auto px-4 py-6">
 
-      {/* ── Recherche ─────────────────────────────── */}
-      <div className="relative max-w-2xl mx-auto mb-10">
-        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Rechercher une sourate, un verset…"
-          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:bg-white/8 transition-all text-base"
-        />
-        {query && (
-          <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {/* ── Continuer + Verset du jour ───────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-8">
-        {/* Continuer la lecture */}
-        {lastRead ? (
-          <Link
-            href={`/surah/${lastRead.split(':')[0]}`}
-            className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/25 hover:border-emerald-500/50 rounded-xl transition-all group"
-          >
-            <span className="text-2xl">📖</span>
-            <div>
-              <p className="text-xs text-emerald-400 mb-0.5">Continuer la lecture</p>
-              <p className="text-white text-sm font-medium group-hover:text-emerald-300 transition-colors">
-                Sourate {lastRead.split(':')[0]}
-              </p>
-            </div>
-            <svg className="w-4 h-4 text-emerald-500/50 group-hover:text-emerald-400 ml-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        ) : (
-          <Link
-            href="/surah/1"
-            className="flex items-center gap-3 p-4 bg-white/3 border border-white/10 hover:border-emerald-500/30 rounded-xl transition-all group"
-          >
-            <span className="text-2xl">🌟</span>
-            <div>
-              <p className="text-xs text-slate-500 mb-0.5">Commencer</p>
-              <p className="text-white text-sm font-medium group-hover:text-emerald-300 transition-colors">Al-Fatihah</p>
-            </div>
-            <svg className="w-4 h-4 text-slate-600 group-hover:text-emerald-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        )}
-
-        {/* Verset du jour */}
-        {(() => {
-          const dv = getDailyVerse()
-          return (
-            <Link href={`/surah/${dv.key.split(':')[0]}/${dv.key.split(':')[1]}`}
-              className="flex flex-col gap-2 p-4 bg-amber-500/8 border border-amber-500/20 hover:border-amber-500/40 rounded-xl transition-all group">
+      {/* ── Verset du jour ─────────────────────────────────────────────── */}
+      {verseOfDay && (
+        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-900/30 to-transparent border border-emerald-500/20 rounded-2xl p-6 mb-6">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: 'radial-gradient(circle at 20% 50%, #10b981 0%, transparent 50%), radial-gradient(circle at 80% 20%, #059669 0%, transparent 50%)'
+            }} />
+          </div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-lg">✨</span>
-                <p className="text-xs text-amber-400/80">Verset du jour</p>
+                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                <p className="text-emerald-400 text-xs font-medium uppercase tracking-wide">Verset du jour</p>
               </div>
-              <p className="quran-text text-amber-100/80 text-lg leading-relaxed text-right group-hover:text-amber-100 transition-colors line-clamp-2" dir="rtl" lang="ar">
-                {dv.arabic}
-              </p>
-              <p className="text-slate-400 text-xs italic line-clamp-1">{dv.fr}</p>
-              <p className="text-amber-500/60 text-xs">{dv.ref}</p>
-            </Link>
-          )
-        })()}
-      </div>
-
-      {/* ── Tabs + tri ────────────────────────────── */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex items-center bg-white/5 rounded-lg p-1 gap-0.5">
-          {([
-            { key: 'surah',      label: 'Sourates'  },
-            { key: 'juz',        label: 'Juz'       },
-            { key: 'revelation', label: 'Révélation'},
-          ] as const).map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                tab === key
-                  ? 'bg-emerald-600 text-white'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {tab !== 'juz' && (
-          <button
-            onClick={() => setAscending(!ascending)}
-            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
-          >
-            <svg className={`w-4 h-4 transition-transform ${ascending ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-            </svg>
-            {ascending ? 'Croissant' : 'Décroissant'}
-          </button>
-        )}
-      </div>
-
-      {/* ── Contenu tabs ─────────────────────────── */}
-      {tab === 'juz' ? (
-        /* Grille 30 Juz */
-        <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2 mb-12">
-          {Array.from({ length: 30 }, (_, i) => i + 1).map(juz => (
-            <Link
-              key={juz}
-              href={`/juz/${juz}`}
-              className="aspect-square flex flex-col items-center justify-center bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 rounded-xl transition-all group"
-            >
-              <span className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">{juz}</span>
-              <span className="text-xs text-slate-500">Juz</span>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        /* Liste sourates */
-        <div className="space-y-0.5 mb-12">
-          {filteredChapters.map(chapter => (
-            <Link
-              key={chapter.id}
-              href={`/surah/${chapter.id}`}
-              className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/5 transition-all group border border-transparent hover:border-white/10"
-            >
-              {/* Numéro */}
-              <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
-                <svg viewBox="0 0 40 40" className="absolute inset-0 w-9 h-9 text-emerald-500/25 group-hover:text-emerald-500/40 transition-colors" fill="currentColor">
-                  <path d="M20 0 L24 16 L40 20 L24 24 L20 40 L16 24 L0 20 L16 16 Z"/>
-                </svg>
-                <span className="relative text-xs font-bold text-emerald-300">{chapter.id}</span>
-              </div>
-
-              {/* Noms */}
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium group-hover:text-emerald-300 transition-colors">
-                  {chapter.name_simple}
-                </p>
-                <p className="text-slate-500 text-xs truncate">{chapter.translated_name.name}</p>
-              </div>
-
-              {/* Badge révélation */}
-              <span className={`hidden sm:inline-block text-xs px-2 py-0.5 rounded-full shrink-0 ${
-                chapter.revelation_place === 'makkah'
-                  ? 'bg-amber-500/10 text-amber-400'
-                  : 'bg-blue-500/10 text-blue-400'
-              }`}>
-                {chapter.revelation_place === 'makkah' ? 'Mecque' : 'Médine'}
-              </span>
-
-              {/* Nom arabe */}
-              <p
-                className="arabic-text text-xl text-amber-100/70 group-hover:text-amber-100/90 transition-colors leading-none shrink-0"
-                dir="rtl"
-                lang="ar"
-              >
-                {chapter.name_arabic}
-              </p>
-
-              {/* Versets */}
-              <p className="text-slate-500 text-xs shrink-0 w-16 text-right">{chapter.verses_count} v.</p>
-            </Link>
-          ))}
-
-          {filteredChapters.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              <p className="text-4xl mb-3">🔍</p>
-              <p>Aucune sourate ne correspond à &quot;{query}&quot;</p>
+              <Link href={`/surah/${verseOfDay.verse_key.split(':')[0]}/${verseOfDay.verse_key.split(':')[1]}`}
+                className="text-xs text-slate-500 hover:text-emerald-400 transition-colors font-mono">
+                {verseOfDay.verse_key}
+              </Link>
             </div>
-          )}
+
+            {/* Texte arabe sacré */}
+            <p className="arabic-text text-2xl md:text-3xl text-white/95 text-right leading-[2.2] mb-4"
+              dir="rtl" lang="ar">
+              {verseOfDay.text_uthmani}
+            </p>
+
+            {/* Traduction */}
+            {translation && (
+              <p className="text-slate-300 text-sm leading-relaxed border-l-2 border-emerald-500/40 pl-3">
+                {sanitizeTranslation(translation.text)}
+              </p>
+            )}
+
+            <div className="flex items-center gap-3 mt-4">
+              <Link href={`/surah/${verseOfDay.verse_key.split(':')[0]}`}
+                className="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs transition-colors">
+                Lire la sourate →
+              </Link>
+              <Link href={`/surah/${verseOfDay.verse_key.split(':')[0]}/${verseOfDay.verse_key.split(':')[1]}`}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 rounded-lg text-xs transition-colors">
+                Voir le tafsir 📖
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Continuer la lecture ────────────────────────────────────────── */}
+      {lastRead && (
+        <Link href={`/surah/${lastRead.surahId}/${lastRead.ayah}`}
+          className="flex items-center gap-4 bg-white/4 hover:bg-white/7 border border-white/10 hover:border-emerald-500/30 rounded-2xl p-4 mb-6 transition-all group">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center text-2xl shrink-0">
+            📖
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-slate-500 text-xs mb-0.5">Continuer la lecture</p>
+            <p className="text-white font-medium truncate">{lastRead.surahName}</p>
+            <p className="text-slate-500 text-xs">Verset {lastRead.ayah}</p>
+          </div>
+          <svg className="w-5 h-5 text-slate-600 group-hover:text-emerald-400 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      )}
+
+      {/* ── Accès rapide ────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-4 gap-2 mb-6">
+        {QUICK_LINKS.map(l => (
+          <Link key={l.href} href={l.href}
+            className="flex flex-col items-center gap-1 p-3 bg-white/4 hover:bg-white/8 border border-white/8 hover:border-white/20 rounded-xl transition-all group text-center">
+            <span className="text-2xl">{l.icon}</span>
+            <span className="text-white text-xs font-medium">{l.label}</span>
+            <span className="text-slate-600 text-[10px] hidden sm:block">{l.sub}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── Tabs ────────────────────────────────────────────────────────── */}
+      <div className="flex border-b border-white/10 mb-4">
+        {[
+          { id: 'surahs', label: 'الـسُّوَر', sub: '114' },
+          { id: 'juz',    label: 'الأَجْزَاء', sub: '30' },
+          { id: 'page',   label: 'الصَّفَحَات', sub: '604' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setActiveTab(t.id as 'surahs' | 'juz' | 'page')}
+            className={`flex items-center gap-1.5 px-4 py-3 text-sm transition-colors border-b-2 ${
+              activeTab === t.id ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <span className="arabic-text" dir="rtl" lang="ar">{t.label}</span>
+            <span className="text-xs text-slate-700">({t.sub})</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Onglet Sourates ─────────────────────────────────────────────── */}
+      {activeTab === 'surahs' && (
+        <>
+          <div className="relative mb-4">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Rechercher une sourate…"
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div className="space-y-1">
+            {filteredChapters.map(ch => (
+              <Link key={ch.id} href={`/surah/${ch.id}`}
+                className="flex items-center gap-3 p-3 hover:bg-white/5 border border-transparent hover:border-white/10 rounded-xl transition-all group">
+                <div className="w-9 h-9 rounded-lg bg-white/5 group-hover:bg-emerald-500/10 flex items-center justify-center shrink-0 transition-colors">
+                  <span className="text-slate-500 text-xs font-mono">{ch.id}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-white text-sm font-medium">{ch.name_simple}</p>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                      ch.revelation_place === 'makkah' ? 'bg-amber-500/10 text-amber-500' : 'bg-blue-500/10 text-blue-400'
+                    }`}>{ch.revelation_place === 'makkah' ? 'م' : 'مد'}</span>
+                  </div>
+                  <p className="text-slate-500 text-xs">{ch.translated_name.name} · {ch.verses_count} versets</p>
+                </div>
+                <p className="arabic-text text-lg text-white/60 shrink-0" dir="rtl" lang="ar">{ch.name_arabic}</p>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* ── Onglet Juz ──────────────────────────────────────────────────── */}
+      {activeTab === 'juz' && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {JUZ_LIST.map(j => (
+            <Link key={j} href={`/juz/${j}`}
+              className="flex items-center gap-3 p-4 bg-white/3 hover:bg-white/8 border border-white/8 hover:border-emerald-500/30 rounded-xl transition-all group">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
+                <span className="text-emerald-400 font-bold text-sm">{j}</span>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Juz {j}</p>
+                <p className="text-slate-600 text-xs arabic-text" dir="rtl" lang="ar">الجزء {j}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* ── Onglet Pages ─────────────────────────────────────────────────── */}
+      {activeTab === 'page' && (
+        <div className="grid grid-cols-5 sm:grid-cols-8 gap-2">
+          {Array.from({ length: 604 }, (_, i) => i + 1).map(p => (
+            <Link key={p} href={`/mushaf/${p}`}
+              className="flex items-center justify-center h-10 bg-white/3 hover:bg-emerald-500/15 border border-white/8 hover:border-emerald-500/30 rounded-lg text-xs text-slate-400 hover:text-emerald-400 transition-all font-mono">
+              {p}
+            </Link>
+          ))}
         </div>
       )}
     </div>

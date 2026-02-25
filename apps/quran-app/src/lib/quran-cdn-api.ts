@@ -329,3 +329,31 @@ export function getTranslation(verse: QdcVerse, resourceId: number): string {
   const t = verse.translations?.find(t => t.resource_id === resourceId)
   return t?.text ?? ''
 }
+
+/** Verset aléatoire */
+export async function getRandomVerse(
+  translations: number[] = [TRANSLATIONS.hamidullah_fr]
+): Promise<{ verse: QdcVerse }> {
+  const params = new URLSearchParams({
+    translations: translations.join(','),
+    fields: 'text_uthmani,verse_key,juz_number,page_number',
+  })
+  return qdcFetch(`/verses/random?${params}`, 0) // pas de cache
+}
+
+/** URL audio sourate entière pour un récitateur */
+export async function getChapterAudio(
+  reciterId: number,
+  chapterId: number
+): Promise<{ audio_files: Array<{ audio_url: string; duration: number; file_size: number }> }> {
+  return qdcFetch(`/audio/reciters/${reciterId}/audio_files?chapter=${chapterId}`, 86400)
+}
+
+/** Récitateurs audio (versets) — liste complète */
+export async function getAudioReciters(): Promise<{ reciters: Array<{
+  id: number; reciter_id: number; name: string;
+  style: { name: string }; qirat: { name: string }
+  translated_name: { name: string }
+}> }> {
+  return qdcFetch('/audio/reciters?per_page=200', 86400 * 7)
+}

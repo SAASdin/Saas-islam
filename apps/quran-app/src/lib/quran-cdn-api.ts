@@ -50,6 +50,8 @@ export interface QdcVerse {
   sajdah_number: number | null
   page_number: number
   juz_number: number
+  text_uthmani?: string      // texte direct (champ `fields=text_uthmani`)
+  text_imlaei?: string
   words?: QdcWord[]
   translations?: QdcTranslation[]
   audio?: { url: string }
@@ -110,13 +112,41 @@ export const TAFSIRS = [
 // ── Utilitaires audio ────────────────────────────────────────
 
 /**
- * URL MP3 d'un verset
- * Format everyayah.com : SSSAAA.mp3 (3 chiffres chacun)
+ * URL MP3 d'un verset via everyayah.com
+ * Format : SSSAAA.mp3
  */
 export function getVerseAudioUrl(reciterSlug: string, surah: number, ayah: number): string {
   const s = String(surah).padStart(3, '0')
   const a = String(ayah).padStart(3, '0')
-  return `https://verses.quran.com/${reciterSlug}/${s}${a}.mp3`
+  // everyayah.com utilise le format /reciter_slug/SSSAAA.mp3
+  return `https://everyayah.com/data/${reciterSlug}/${s}${a}.mp3`
+}
+
+/**
+ * URL MP3 sourate complète via quranicaudio.com
+ */
+export function getSurahAudioUrl(reciterQuranicId: number, surah: number): string {
+  return `https://download.quranicaudio.com/quran/${reciterQuranicId}/${String(surah).padStart(3, '0')}.mp3`
+}
+
+/**
+ * Mapping slug everyayah.com par ID récitateur QuranCDN
+ */
+export const RECITER_SLUGS: Record<number, string> = {
+  7:   'Alafasy_128kbps',
+  3:   'Abdurrahmaan_As-Sudais_192kbps',
+  2:   'Abdul_Basit_Murattal_192kbps',
+  6:   'Husary_128kbps',
+  10:  'Saood_ash-Shuraym_128kbps',
+  1:   'Abdul_Basit_Mujaawad_128kbps',
+  9:   'Mishary_Rashid_Alafasy',
+  8:   'Muhammad_Ayyoob_128kbps',
+  11:  'Maher_AlMuaiqly_128kbps',
+  12:  'Bandar_Baleelah_192kbps',
+}
+
+export function getReciterSlugById(reciterId: number): string {
+  return RECITER_SLUGS[reciterId] ?? RECITER_SLUGS[7]
 }
 
 // ── Fetch interne ────────────────────────────────────────────
@@ -159,6 +189,7 @@ export async function getVersesByChapter(
     translations: (options.translations ?? [TRANSLATIONS.hamidullah_fr, TRANSLATIONS.saheeh_en]).join(','),
     audio: String(options.audioId ?? 7),
     word_fields: 'text_uthmani,text_imlaei',
+    fields: 'text_uthmani,text_imlaei,verse_key,juz_number,page_number',
     per_page: String(options.perPage ?? 300),
     page: String(options.page ?? 1),
   })
@@ -174,6 +205,7 @@ export async function getVersesByJuz(
     words: 'true',
     translations: (options.translations ?? [TRANSLATIONS.hamidullah_fr]).join(','),
     word_fields: 'text_uthmani,text_imlaei',
+    fields: 'text_uthmani,text_imlaei,verse_key,juz_number,page_number',
     per_page: '300',
   })
   return qdcFetch(`/verses/by_juz/${juzNumber}?${params}`, 86400)
@@ -188,6 +220,7 @@ export async function getVersesByPage(
     words: 'true',
     translations: (options.translations ?? [TRANSLATIONS.hamidullah_fr]).join(','),
     word_fields: 'text_uthmani,text_imlaei',
+    fields: 'text_uthmani,text_imlaei,verse_key,juz_number,page_number',
     per_page: '50',
   })
   return qdcFetch(`/pages/${pageNumber}/verses?${params}`, 86400)
@@ -202,6 +235,7 @@ export async function getVerse(
     words: 'true',
     translations: (options.translations ?? [TRANSLATIONS.hamidullah_fr, TRANSLATIONS.saheeh_en]).join(','),
     word_fields: 'text_uthmani,text_imlaei',
+    fields: 'text_uthmani,text_imlaei,verse_key,juz_number,page_number',
   })
   return qdcFetch(`/verses/by_key/${verseKey}?${params}`, 86400)
 }
@@ -250,3 +284,27 @@ export async function getReciters(): Promise<{ reciters: QdcReciter[] }> {
 
 /** Récitateur par défaut (Alafasy) */
 export const DEFAULT_RECITER = RECITERS[0]
+
+/**
+ * Extrait le texte Uthmani d'un verset
+ * ⚠️ Priorité : text_uthmani du verset > reconstruction depuis words
+ * Ne jamais modifier le résultat
+ */
+export function getVerseText(verse: QdcVerse): string {
+  if (verse.text_uthmani) return verse.text_uthmani
+  if (verse.words && verse.words.length > 0) {
+    return verse.words
+      .filter(w => w.char_type_name !== 'end')
+      .map(w => w.text_uthmani)
+      .join(' ')
+  }
+  return ''
+}
+
+/**
+ * Extrait la traduction principale d'un verset
+ */
+export function getTranslation(verse: QdcVerse, resourceId: number): string {
+  const t = verse.translations?.find(t => t.resource_id === resourceId)
+  return t?.text ?? ''
+}

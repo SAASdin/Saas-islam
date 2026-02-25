@@ -5,6 +5,7 @@
 // ============================================================
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { RECITER_SLUGS } from '@/lib/quran-cdn-api'
 
 export type QuranFont = 'kfgqpc' | 'uthmani' | 'indopak' | 'simple'
 export type ReadingMode = 'ayah' | 'page' | 'translation' | 'word-by-word'
@@ -81,7 +82,7 @@ export const useSettings = create<SettingsState>()(
       showTafsir: false,
       tafsirPosition: 'sidebar',
       reciterId: 7,
-      reciterSlug: 'ar.alafasy',
+      reciterSlug: 'Alafasy_128kbps',
       autoPlay: false,
       repeatMode: 'none',
       repeatCount: 1,
@@ -99,7 +100,7 @@ export const useSettings = create<SettingsState>()(
       toggleTranslation: () => set((s) => ({ showTranslation: !s.showTranslation })),
       setPrimaryTranslation: (id) => set({ primaryTranslation: id }),
       setSecondaryTranslation: (id) => set({ secondaryTranslation: id }),
-      setReciter: (id, slug) => set({ reciterId: id, reciterSlug: slug }),
+      setReciter: (id, slug) => set({ reciterId: id, reciterSlug: RECITER_SLUGS[id] ?? slug }),
       setRepeatMode: (m) => set({ repeatMode: m }),
       setPlaybackSpeed: (s) => set({ playbackSpeed: s }),
       setTheme: (t) => set({ theme: t }),

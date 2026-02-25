@@ -41,7 +41,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   currentSurahName: '',
   currentAyahCount: 7,
   reciterName: 'Mishary Rashid Al-Afasy',
-  reciterSlug: 'ar.alafasy',
+  reciterSlug: 'Alafasy_128kbps',
   duration: 0,
   currentTime: 0,
   playbackSpeed: 1,

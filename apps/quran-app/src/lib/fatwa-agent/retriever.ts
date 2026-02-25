@@ -85,6 +85,22 @@ export async function retrievePassages(query: RetrievalQuery): Promise<Retrieved
   const madhabFilter = madhab ? `AND f.madhab = '${madhab.replace(/'/g, "''")}'` : '';
   const domainFilter = domain ? `AND f.domain = '${domain.replace(/'/g, "''")}'` : '';
 
+  // Scholars canoniques par madhab (priorités de rang)
+  // Ibn Taymiyyah pratique l'ijtihad → non prioritaire pour hanbali établi
+  const canonicalScholars: Record<string, string[]> = {
+    hanbali: ['البهوتي', 'ابن قدامة'],
+    maliki:  ['الخرشي', 'الدردير', 'الدسوقي', 'الحطاب'],
+    hanafi:  ['ابن عابدين'],
+    shafii:  ['الرملي', 'ابن حجر الهيثمي'],
+    salafi:  ['ابن باز', 'ابن عثيمين', 'اللجنة الدائمة'],
+  };
+
+  // Boost pour les scholars canoniques du madhab sélectionné
+  const canonicals = madhab ? canonicalScholars[madhab] ?? [] : [];
+  const canonicalBoost = canonicals.length > 0
+    ? `+ CASE WHEN ${canonicals.map(s => `fs.name_arabic LIKE '%${s}%'`).join(' OR ')} THEN 0.3 ELSE 0 END`
+    : '';
+
   const sql = `
     SELECT
       f.id,
@@ -100,9 +116,12 @@ export async function retrievePassages(query: RetrievalQuery): Promise<Retrieved
       fb.title_arabic AS book_title_ar,
       fb.title_fr     AS book_title_fr,
       fb.shamela_local_id,
-      ts_rank(
-        to_tsvector('simple', f.answer_arabic || ' ' || COALESCE(f.chapter_hint, '')),
-        to_tsquery('simple', $1)
+      (
+        ts_rank(
+          to_tsvector('simple', f.answer_arabic || ' ' || COALESCE(f.chapter_hint, '')),
+          to_tsquery('simple', $1)
+        )
+        ${canonicalBoost}
       ) AS rank
     FROM app.fatwas f
     JOIN app.fatwa_scholars fs ON f.scholar_id = fs.id

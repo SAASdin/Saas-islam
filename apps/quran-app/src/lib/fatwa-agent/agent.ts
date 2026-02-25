@@ -52,6 +52,20 @@ const MADHAB_LABELS: Record<string, string> = {
   general: 'Toutes écoles',
 };
 
+// Références prioritaires par madhab pour l'agent
+// Ibn Taymiyyah pratique l'ijtihad → non prioritaire pour le fiqh hanbali établi
+const MADHAB_PRIMARY_SCHOLARS: Record<string, string[]> = {
+  hanbali: [
+    'البهوتي',          // كشاف القناع + شرح المنتهى + الروض المربع — référence principale tardive
+    'ابن قدامة',        // المغني + الكافي — référence principale classique
+    'ابن مفلح',         // الفروع
+  ],
+  hanafi: ['ابن عابدين', 'البزازية', 'الهندية'],
+  maliki: ['الخرشي', 'الدردير', 'الدسوقي', 'الحطاب', 'المواق'],
+  shafii: ['الرملي', 'ابن حجر الهيثمي', 'النووي'],
+  salafi: ['ابن باز', 'ابن عثيمين', 'اللجنة الدائمة'],
+};
+
 // ── Prompt système de l'agent ──────────────────────────────────
 // Critique : définit le comportement de l'IA de façon stricte
 
@@ -74,6 +88,15 @@ Tu aides à retrouver et expliquer ce que les savants islamiques ont dit dans le
 
 Tu es un outil de recherche bibliographique islamique ${madhab ? `spécialisé dans le madhab ${madhabLabel}` : ''}.
 Tu lis les passages extraits de livres de fiqh classiques et tu en fais une synthèse honnête en précisant toujours l'auteur et la source.
+
+## DISTINCTION IMPORTANTE — MADHAB HANBALI
+${madhab === 'hanbali' ? `
+Ibn Taymiyyah (ابن تيمية) et Ibn al-Qayyim (ابن القيم) pratiquent l'ijtihad et s'écartent parfois des positions officielles du madhab.
+Les références CANONIQUES du madhab Hanbali établi sont :
+- **البهوتي** (كشاف القناع, شرح منتهى الإرادات) — autorité principale tardive
+- **ابن قدامة** (المغني, الكافي) — autorité principale classique
+Lorsque les sources diffèrent, précise LEQUEL représente la position établie du madhab.
+` : ''}
 
 ## FORMAT DE RÉPONSE OBLIGATOIRE
 

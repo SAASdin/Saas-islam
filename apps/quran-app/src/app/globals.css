@@ -1,0 +1,173 @@
+/* ============================================================
+   globals.css — Saas-islam : Quran App
+   Police islamique + variables + styles de base RTL
+   ============================================================ */
+
+@import "tailwindcss";
+@import "@fontsource/amiri/400.css";
+@import "@fontsource/amiri/700.css";
+
+/* ════════════════════════════════════════════
+   Variables CSS islamiques
+   ════════════════════════════════════════════ */
+:root {
+  /* Couleurs */
+  --color-islam-green: #1a7f4b;
+  --color-gold: #c9a227;
+  --color-cream: #fdf8ed;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-bg: #ffffff;
+  --color-surface: #f9fafb;
+  --color-border: #e5e7eb;
+
+  /* Polices */
+  --font-amiri: 'Amiri', Georgia, serif;
+
+  /* Taille police arabe (ajustable par utilisateur) */
+  --arabic-font-size: 1.5rem;    /* 24px défaut */
+  --arabic-line-height: 2.5rem;
+
+  /* Transitions */
+  --transition-base: 150ms ease-in-out;
+}
+
+/* Mode sombre */
+.dark {
+  --color-text: #f9fafb;
+  --color-text-muted: #9ca3af;
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-border: #374151;
+  --color-cream: #1a1a2e;
+}
+
+/* Mode sépia (lecture Coran) */
+.sepia {
+  --color-bg: #fdf8ed;
+  --color-surface: #f5efd8;
+  --color-text: #2c1a0e;
+  --color-text-muted: #7c5c3e;
+}
+
+/* ════════════════════════════════════════════
+   Styles de base
+   ════════════════════════════════════════════ */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-amiri);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* ════════════════════════════════════════════
+   Texte arabe — RÈGLES STRICTES
+   Toujours appliquer ces classes sur le texte islamique
+   ════════════════════════════════════════════ */
+
+/* Classe de base pour TOUT texte arabe islamique */
+.arabic-text {
+  font-family: var(--font-amiri);
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: embed;
+  font-size: var(--arabic-font-size);
+  line-height: var(--arabic-line-height);
+  /* Empêcher la sélection partielle d'un verset */
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+/* Texte coranique — police maximale et respectueuse */
+.quran-text {
+  font-family: var(--font-amiri);
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: embed;
+  font-size: var(--arabic-font-size);
+  line-height: var(--arabic-line-height);
+  font-weight: 400;
+  color: var(--color-text);
+  /* Espacement entre les lettres arabes — ne JAMAIS modifier letter-spacing sur du texte coranique */
+  letter-spacing: 0;
+  word-spacing: 0.1em;
+}
+
+/* Bismillah — affichage spécial centré */
+.bismillah {
+  font-family: var(--font-amiri);
+  direction: rtl;
+  text-align: center;
+  font-size: 2rem;
+  line-height: 3.5rem;
+  color: var(--color-islam-green);
+  padding: 1rem 0;
+}
+
+/* Numéro de verset — badge circulaire */
+.ayah-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--color-islam-green);
+  color: white;
+  font-size: 0.75rem;
+  font-family: var(--font-amiri);
+  flex-shrink: 0;
+}
+
+/* Label traduction automatique — OBLIGATOIRE sur toute trad auto */
+.auto-translation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-family: var(--font-amiri);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ════════════════════════════════════════════
+   Utilitaires de scrollbar islamique
+   ════════════════════════════════════════════ */
+.scrollbar-islamic::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-islamic::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+.scrollbar-islamic::-webkit-scrollbar-thumb {
+  background: var(--color-islam-green);
+  border-radius: 2px;
+}
+
+/* ════════════════════════════════════════════
+   Animations
+   ════════════════════════════════════════════ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}

@@ -1,12 +1,12 @@
 // ============================================================
-// priere/page.tsx — Horaires de prière
+// priere/page.tsx — Horaires de prière — Premium dark
 // Source : api.aladhan.com (gratuit, pas de clé)
 // Méthode : UOIF (recommandée pour France/Europe)
 // ============================================================
 
 import { getPrayerTimesByCity, formatPrayers, formatHijriDate } from '@/lib/prayer-api'
 import PrayerCountdown from '@/components/prayer/PrayerCountdown'
-import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -14,9 +14,8 @@ export const metadata: Metadata = {
   description: 'Horaires de prière pour Paris et la France — méthode UOIF',
 }
 
-export const revalidate = 3600 // Re-calculer toutes les heures
+export const revalidate = 3600
 
-// Villes françaises pré-configurées
 const CITIES = [
   { city: 'Paris', country: 'France', flag: '🗼' },
   { city: 'Lyon', country: 'France', flag: '🦁' },
@@ -27,13 +26,12 @@ const CITIES = [
 ]
 
 export default async function PriereHomePage() {
-  // Par défaut Paris — l'utilisateur peut changer via l'UI
   let prayerData = null
   let error = null
 
   try {
     prayerData = await getPrayerTimesByCity('Paris', 'France', 12)
-  } catch (e) {
+  } catch {
     error = 'Impossible de charger les horaires pour le moment.'
   }
 
@@ -41,92 +39,126 @@ export default async function PriereHomePage() {
   const hijriDate = prayerData ? formatHijriDate(prayerData.date.hijri) : ''
 
   return (
-    <main className="min-h-screen bg-cream-50 dark:bg-gray-900">
+    <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
+      <Navigation />
 
-      {/* ── Navigation ────────────────────────────────────── */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-islam-700 dark:text-islam-400">
-            🕌 Saas-islam
-          </Link>
-          <nav className="flex gap-4 text-sm text-gray-600 dark:text-gray-300">
-            <Link href="/" className="hover:text-islam-600">Coran</Link>
-            <Link href="/hadiths" className="hover:text-islam-600">Hadiths</Link>
-            <Link href="/priere" className="text-islam-600 font-semibold">Prière</Link>
-            <Link href="/bibliotheque" className="hover:text-islam-600">Bibliothèque</Link>
-          </nav>
-        </div>
-      </header>
+      {/* ── Hero ──────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden py-14 px-4"
+        style={{
+          background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1a2e 50%, #0a0f1e 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="absolute inset-0 islamic-star-pattern opacity-50 pointer-events-none" aria-hidden="true" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(56,189,248,0.06) 0%, transparent 70%)' }}
+        />
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
-
-        {/* ── En-tête ───────────────────────────────────────── */}
-        <div className="text-center mb-8">
+        <div className="relative max-w-3xl mx-auto text-center">
           <p
             dir="rtl"
             lang="ar"
-            className="text-2xl text-islam-700 dark:text-islam-400 mb-2"
+            className="text-4xl mb-4"
+            style={{
+              fontFamily: 'var(--font-amiri)',
+              color: '#d4af37',
+              lineHeight: '1.8',
+              textShadow: '0 0 30px rgba(212,175,55,0.3)',
+            }}
           >
+            {/* ⚠️ Texte arabe sacré */}
             مواقيت الصلاة
           </p>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+
+          <h1
+            className="text-3xl font-bold mb-3"
+            style={{
+              background: 'linear-gradient(135deg, #f1f5f9 0%, #d4af37 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             Horaires de Prière
           </h1>
+
           {prayerData && (
-            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 space-y-1">
-              <p>{prayerData.date.gregorian.weekday.en}, {prayerData.date.readable}</p>
+            <div className="mt-3 space-y-1">
+              <p className="text-slate-400 text-sm">
+                {prayerData.date.gregorian.weekday.en}, {prayerData.date.readable}
+              </p>
               <p
                 dir="rtl"
                 lang="ar"
-                className="text-islam-600 dark:text-islam-400"
+                className="text-sm"
+                style={{ fontFamily: 'var(--font-amiri)', color: '#22c55e', lineHeight: '1.6' }}
               >
+                {/* ⚠️ Date hijri — texte arabe sacré */}
                 {hijriDate}
               </p>
             </div>
           )}
         </div>
+      </section>
+
+      <div className="max-w-3xl mx-auto px-4 py-8">
 
         {/* Erreur */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-red-700 dark:text-red-400 text-sm text-center mb-6">
+          <div
+            className="p-4 rounded-xl text-sm text-center mb-6"
+            style={{
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              color: '#f87171',
+            }}
+          >
             {error}
           </div>
         )}
 
-        {/* ── Prochaine prière (countdown) ─────────────────── */}
-        {prayers.length > 0 && (
-          <PrayerCountdown prayers={prayers} />
-        )}
+        {/* ── Countdown ────────────────────────────────── */}
+        {prayers.length > 0 && <PrayerCountdown prayers={prayers} />}
 
-        {/* ── Liste des prières ─────────────────────────────── */}
+        {/* ── Liste des prières ──────────────────────── */}
         {prayers.length > 0 && (
-          <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden mb-8">
+          <section
+            className="rounded-2xl overflow-hidden mb-8"
+            style={{
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(17,24,39,0.7)',
+            }}
+          >
             {prayers.map((prayer, index) => (
               <div
                 key={prayer.key}
-                className={`flex items-center justify-between px-6 py-4 ${
-                  index < prayers.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''
-                }`}
+                className="flex items-center justify-between px-6 py-5"
+                style={{
+                  borderBottom: index < prayers.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                }}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl" role="img" aria-hidden>
-                    {prayer.icon}
-                  </span>
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl" role="img" aria-hidden>{prayer.icon}</span>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">
-                      {prayer.nameFr}
-                    </p>
+                    <p className="font-semibold text-slate-100 text-base">{prayer.nameFr}</p>
                     <p
                       dir="rtl"
                       lang="ar"
-                      className="text-sm text-islam-600 dark:text-islam-400"
+                      className="text-sm"
+                      style={{ fontFamily: 'var(--font-amiri)', color: '#22c55e', lineHeight: '1.6' }}
                     >
+                      {/* ⚠️ Nom de la prière en arabe */}
                       {prayer.nameAr}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  <p
+                    className="text-2xl font-bold"
+                    style={{ color: '#d4af37' }}
+                  >
                     {prayer.time}
                   </p>
                 </div>
@@ -135,65 +167,96 @@ export default async function PriereHomePage() {
           </section>
         )}
 
-        {/* ── Info méthode de calcul ────────────────────────── */}
+        {/* ── Info méthode de calcul ──────────────────── */}
         {prayerData && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-300 mb-8">
-            <p className="font-medium">📍 Paris, France</p>
-            <p className="mt-1 text-xs">
-              Méthode de calcul : {prayerData.meta.method.name}
-              {' · '}
-              Latitude : {prayerData.meta.latitude.toFixed(4)}
-              {' · '}
-              Timezone : {prayerData.meta.timezone}
+          <div
+            className="p-5 rounded-xl text-sm mb-8"
+            style={{
+              background: 'rgba(212,175,55,0.04)',
+              border: '1px solid rgba(212,175,55,0.12)',
+            }}
+          >
+            <p className="font-medium text-slate-300 mb-1">📍 Paris, France</p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Méthode de calcul :{' '}
+              <span style={{ color: '#d4af37' }}>{prayerData.meta.method.name}</span>
+              {' · '}Latitude : {prayerData.meta.latitude.toFixed(4)}
+              {' · '}Timezone : {prayerData.meta.timezone}
             </p>
           </div>
         )}
 
-        {/* ── Autres villes ─────────────────────────────────── */}
-        <section>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+        {/* ── Autres villes ──────────────────────────── */}
+        <section className="mb-10">
+          <h2 className="text-lg font-bold text-slate-100 mb-5">
             Autres villes françaises
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {CITIES.map((c) => (
               <button
                 key={c.city}
-                className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-islam-50 dark:hover:bg-islam-900/20 hover:text-islam-600 transition-colors text-left border border-transparent hover:border-islam-200"
+                className="rounded-xl px-4 py-4 text-sm text-left transition-all duration-200"
+                style={{
+                  background: 'rgba(17,24,39,0.7)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  color: '#94a3b8',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = 'rgba(212,175,55,0.2)'
+                  el.style.color = '#f1f5f9'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = 'rgba(255,255,255,0.06)'
+                  el.style.color = '#94a3b8'
+                }}
                 type="button"
               >
-                <span className="text-lg mr-2" role="img" aria-hidden>{c.flag}</span>
-                {c.city}
+                <span className="text-xl block mb-1">{c.flag}</span>
+                <span>{c.city}</span>
               </button>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-3 text-center">
-            Sélection d&apos;autres villes à venir — entrez vos coordonnées GPS pour plus de précision
+          <p className="text-xs text-slate-600 mt-3 text-center">
+            Sélection d&apos;autres villes à venir
           </p>
         </section>
 
-        {/* ── Dhikr du moment ───────────────────────────────── */}
-        <section className="mt-10 bg-islam-50 dark:bg-islam-900/20 rounded-2xl p-6 text-center">
-          <p className="text-xs text-gray-400 mb-3 uppercase tracking-wide">
+        {/* ── Dhikr ────────────────────────────────────── */}
+        <section
+          className="rounded-2xl p-8 text-center"
+          style={{
+            background: 'linear-gradient(135deg, rgba(21,128,61,0.08) 0%, rgba(10,15,30,0.8) 100%)',
+            border: '1px solid rgba(21,128,61,0.15)',
+          }}
+        >
+          <p className="text-xs text-slate-600 mb-4 uppercase tracking-widest">
             Dhikr recommandé
           </p>
           <p
             dir="rtl"
             lang="ar"
-            className="quran-text text-xl text-gray-900 dark:text-gray-100 leading-loose"
-            aria-label="Subhanallah walhamdulillah wa la ilaha illallah wallahu akbar"
+            className="text-2xl leading-loose"
+            style={{
+              fontFamily: 'var(--font-amiri)',
+              color: '#f1f5f9',
+              lineHeight: '3rem',
+            }}
+            aria-label="Subhanallah wa bihamdihi"
           >
             {/* ⚠️ Texte dhikr — copié sans modification */}
             سُبْحَانَ اللَّهِ وَبِحَمْدِهِ
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-sm text-slate-500 mt-3">
             «Gloire à Allah et à Sa louange» — 100× par jour
           </p>
         </section>
 
-        <footer className="mt-8 text-center text-xs text-gray-400">
+        <footer className="mt-10 text-center text-xs text-slate-700">
           <p>Source : api.aladhan.com · Méthode UOIF (n°12)</p>
         </footer>
       </div>
-    </main>
+    </div>
   )
 }

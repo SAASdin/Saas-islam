@@ -1,21 +1,18 @@
 'use client'
 // ============================================================
-// AudioPlayer.tsx — Lecteur audio versets coraniques
+// AudioPlayer.tsx — Lecteur audio versets coraniques — Design Premium
 // Source CDN : cdn.islamic.network/quran/audio/128/ar.alafasy
-// Inspiré de quran.com — multi-récitateurs
 // ⚠️  Audio SACRÉ — ne jamais modifier les URLs des récitateurs validés
 // ============================================================
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-
-// ── Récitateurs disponibles (sources officielles validées) ───
 
 export interface Reciter {
   id: string
   nameAr: string
   nameFr: string
   bitrate: number
-  cdnSlug: string     // nom du dossier sur cdn.islamic.network
+  cdnSlug: string
 }
 
 export const RECITERS: Reciter[] = [
@@ -51,27 +48,20 @@ export const RECITERS: Reciter[] = [
 
 const DEFAULT_RECITER = RECITERS[0]
 
-// ── Construire l'URL audio ───────────────────────────────────
-
 function buildAudioUrl(reciter: Reciter, ayahNumberQuran: number): string {
   return `https://cdn.islamic.network/quran/audio/${reciter.bitrate}/${reciter.cdnSlug}/${ayahNumberQuran}.mp3`
 }
 
-// ── Props ────────────────────────────────────────────────────
-
 interface Props {
-  // Numéro global du verset dans le Coran (1–6236)
   ayahNumberQuran: number
-  // Pour la navigation
   totalAyahs?: number
   surahId?: number
   onNext?: () => void
   onPrev?: () => void
-  // Compact : juste le bouton play/pause
   compact?: boolean
 }
 
-// ── Composant bouton simple (dans chaque verset) ─────────────
+// ── Bouton play simple (inline dans chaque verset) ──────────
 
 export function AyahPlayButton({
   ayahNumberQuran,
@@ -81,12 +71,15 @@ export function AyahPlayButton({
   reciterId?: string
 }) {
   const [playing, setPlaying] = useState(false)
+  const [loading, setLoading] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const reciter = RECITERS.find(r => r.id === reciterId) ?? DEFAULT_RECITER
 
   function togglePlay() {
     if (!audioRef.current) {
+      setLoading(true)
       audioRef.current = new Audio(buildAudioUrl(reciter, ayahNumberQuran))
+      audioRef.current.oncanplay = () => setLoading(false)
       audioRef.current.onended = () => setPlaying(false)
     }
 
@@ -99,7 +92,6 @@ export function AyahPlayButton({
     }
   }
 
-  // Nettoyage
   useEffect(() => {
     return () => {
       audioRef.current?.pause()
@@ -109,17 +101,30 @@ export function AyahPlayButton({
   return (
     <button
       onClick={togglePlay}
-      className="text-gray-400 hover:text-islam-600 dark:hover:text-islam-400 transition-colors"
+      className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200"
+      style={{
+        background: playing
+          ? 'rgba(212,175,55,0.2)'
+          : 'rgba(255,255,255,0.05)',
+        border: `1px solid ${playing ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`,
+        color: playing ? '#d4af37' : '#64748b',
+      }}
       title={playing ? 'Pause' : 'Écouter ce verset'}
       type="button"
       aria-label={playing ? 'Pause' : `Écouter le verset ${ayahNumberQuran}`}
+      disabled={loading}
     >
-      {playing ? (
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      {loading ? (
+        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+      ) : playing ? (
+        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
         </svg>
       ) : (
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
           <path d="M8 5v14l11-7z"/>
         </svg>
       )}
@@ -143,7 +148,6 @@ export default function AudioPlayer({
   const [duration, setDuration] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Construire l'URL audio courante
   const audioUrl = buildAudioUrl(currentReciter, ayahNumberQuran)
 
   const initAudio = useCallback(() => {
@@ -159,12 +163,8 @@ export default function AudioPlayer({
       setProgress(0)
       onNext?.()
     }
-    audio.ontimeupdate = () => {
-      setProgress(audio.currentTime)
-    }
-    audio.onloadedmetadata = () => {
-      setDuration(audio.duration)
-    }
+    audio.ontimeupdate = () => setProgress(audio.currentTime)
+    audio.onloadedmetadata = () => setDuration(audio.duration)
     audioRef.current = audio
   }, [audioUrl, onNext])
 
@@ -205,7 +205,8 @@ export default function AudioPlayer({
       <button
         onClick={togglePlay}
         disabled={loading}
-        className="text-gray-400 hover:text-islam-600 dark:hover:text-islam-400 transition-colors disabled:opacity-50"
+        className="transition-colors disabled:opacity-50"
+        style={{ color: playing ? '#d4af37' : '#64748b' }}
         title={playing ? 'Pause' : 'Écouter'}
         type="button"
       >
@@ -227,11 +228,19 @@ export default function AudioPlayer({
     )
   }
 
-  // Player complet
+  // Player complet glassmorphism
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 px-4 py-3">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 px-4 py-3"
+      style={{
+        background: 'rgba(10,15,30,0.92)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderTop: '1px solid rgba(212,175,55,0.15)',
+        boxShadow: '0 -4px 32px rgba(0,0,0,0.5)',
+      }}
+    >
       <div className="max-w-3xl mx-auto">
-
         {/* Barre de progression */}
         <input
           type="range"
@@ -239,7 +248,8 @@ export default function AudioPlayer({
           max={duration || 100}
           value={progress}
           onChange={handleSeek}
-          className="w-full h-1 mb-3 rounded-full accent-islam-600 cursor-pointer"
+          className="w-full h-1 mb-3 rounded-full cursor-pointer"
+          style={{ accentColor: '#d4af37' }}
           aria-label="Progression audio"
         />
 
@@ -248,7 +258,7 @@ export default function AudioPlayer({
           {onPrev && (
             <button
               onClick={onPrev}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="text-slate-400 hover:text-slate-200 transition-colors"
               title="Verset précédent"
               type="button"
             >
@@ -262,21 +272,26 @@ export default function AudioPlayer({
           <button
             onClick={togglePlay}
             disabled={loading}
-            className="w-10 h-10 rounded-full bg-islam-600 text-white flex items-center justify-center hover:bg-islam-700 transition-colors disabled:opacity-50"
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50"
+            style={{
+              background: 'linear-gradient(135deg, #d4af37 0%, #b8962a 100%)',
+              boxShadow: '0 0 20px rgba(212,175,55,0.4)',
+              color: '#0a0f1e',
+            }}
             title={playing ? 'Pause' : 'Écouter'}
             type="button"
           >
             {loading ? (
               <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/>
-                <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
               </svg>
             ) : playing ? (
-              <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
               </svg>
             ) : (
-              <svg className="w-5 h-5 ml-0.5" fill="white" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
               </svg>
             )}
@@ -286,7 +301,7 @@ export default function AudioPlayer({
           {onNext && (
             <button
               onClick={onNext}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="text-slate-400 hover:text-slate-200 transition-colors"
               title="Verset suivant"
               type="button"
             >
@@ -297,15 +312,15 @@ export default function AudioPlayer({
           )}
 
           {/* Temps */}
-          <span className="text-xs text-gray-400 min-w-[60px]">
+          <span className="text-xs text-slate-500 min-w-[60px]">
             {formatTime(progress)} / {formatTime(duration)}
           </span>
 
-          {/* Récitateur */}
+          {/* Récitateur picker */}
           <div className="ml-auto relative">
             <button
               onClick={() => setShowReciterPicker(p => !p)}
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-islam-600 transition-colors flex items-center gap-1"
+              className="text-xs text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1"
               type="button"
             >
               🎙️ {currentReciter.nameFr.split(' ').slice(-1)[0]}
@@ -315,7 +330,14 @@ export default function AudioPlayer({
             </button>
 
             {showReciterPicker && (
-              <div className="absolute bottom-8 right-0 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 min-w-[200px] z-50">
+              <div
+                className="absolute bottom-8 right-0 rounded-xl shadow-2xl py-2 min-w-[220px] z-50"
+                style={{
+                  background: 'rgba(17,24,39,0.95)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >
                 {RECITERS.map(r => (
                   <button
                     key={r.id}
@@ -324,13 +346,23 @@ export default function AudioPlayer({
                       setShowReciterPicker(false)
                       setPlaying(false)
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                      r.id === currentReciter.id ? 'text-islam-600 font-medium' : 'text-gray-700 dark:text-gray-300'
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      r.id === currentReciter.id
+                        ? 'text-amber-400 font-medium'
+                        : 'text-slate-300 hover:text-slate-100 hover:bg-white/5'
                     }`}
                     type="button"
                   >
                     <div>{r.nameFr}</div>
-                    <div dir="rtl" lang="ar" className="text-xs text-gray-400">{r.nameAr}</div>
+                    <div
+                      dir="rtl"
+                      lang="ar"
+                      className="text-xs text-slate-500 mt-0.5"
+                      style={{ fontFamily: 'var(--font-amiri)' }}
+                    >
+                      {/* ⚠️ Nom arabe du récitateur — SACRÉ */}
+                      {r.nameAr}
+                    </div>
                   </button>
                 ))}
               </div>

@@ -1,7 +1,6 @@
 'use client'
 // ============================================================
-// SurahListWithSearch.tsx — Liste des sourates + SearchBar
-// Client Component pour permettre la recherche en temps réel
+// SurahListWithSearch.tsx — Liste des sourates + SearchBar — Dark premium
 // ⚠️  nameArabic est SACRÉ — affiché tel quel dans SurahCard
 // ============================================================
 
@@ -19,7 +18,7 @@ export default function SurahListWithSearch({ surahs }: Props) {
 
   return (
     <section
-      className="max-w-3xl mx-auto px-4 pb-12"
+      className="max-w-4xl mx-auto px-4 pb-16"
       aria-label="Liste des 114 sourates du Coran"
     >
       {/* Barre de recherche */}
@@ -27,7 +26,7 @@ export default function SurahListWithSearch({ surahs }: Props) {
 
       {/* Compteur de résultats */}
       {filtered.length < surahs.length && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 text-center">
+        <p className="text-sm text-slate-500 mb-4 text-center">
           {filtered.length} sourate{filtered.length > 1 ? 's' : ''} trouvée{filtered.length > 1 ? 's' : ''}
         </p>
       )}
@@ -40,10 +39,10 @@ export default function SurahListWithSearch({ surahs }: Props) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-gray-400">
-          <p className="text-4xl mb-3">🔍</p>
-          <p>Aucune sourate trouvée</p>
-          <p className="text-xs mt-1">Essayez le numéro, la translittération ou le nom arabe</p>
+        <div className="text-center py-16">
+          <p className="text-5xl mb-4">🔍</p>
+          <p className="text-slate-400">Aucune sourate trouvée</p>
+          <p className="text-xs text-slate-600 mt-2">Essayez le numéro, la translittération ou le nom arabe</p>
         </div>
       )}
     </section>

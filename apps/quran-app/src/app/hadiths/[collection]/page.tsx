@@ -1,13 +1,13 @@
 // ============================================================
-// hadiths/[collection]/page.tsx — Vue d'une collection de hadiths
-// Affiche la liste des hadiths de la collection (paginée)
+// hadiths/[collection]/page.tsx — Vue collection de hadiths — Premium dark
+// Fetch réel depuis l'API hadith.gading.dev
 // ⚠️  Texte arabe des hadiths : dir="rtl" lang="ar" OBLIGATOIRES
-//     JAMAIS transformer le texte arab (trim, replace, etc.)
 // ============================================================
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getBook, getCollectionMeta, HADITH_COLLECTIONS } from '@/lib/hadith-api'
+import Navigation from '@/components/Navigation'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -31,118 +31,125 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export const revalidate = 86400 // 24h
+export const revalidate = 86400
 
 export default async function CollectionPage({ params, searchParams }: Props) {
   const { collection } = await params
   const { page: pageParam } = await searchParams
 
-  // Vérifier que la collection existe
   const meta = getCollectionMeta(collection)
   if (!meta) notFound()
 
-  // Pagination
   const currentPage = Math.max(1, parseInt(pageParam ?? '1') || 1)
   const startHadith = (currentPage - 1) * HADITHS_PER_PAGE + 1
   const endHadith = Math.min(startHadith + HADITHS_PER_PAGE - 1, meta.totalHadiths)
   const totalPages = Math.ceil(meta.totalHadiths / HADITHS_PER_PAGE)
 
-  // Récupération des hadiths
   const bookData = await getBook(collection, `${startHadith}-${endHadith}`)
 
   return (
-    <main className="min-h-screen bg-cream-50 dark:bg-gray-900">
+    <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
+      <Navigation />
 
-      {/* ── Navigation ──────────────────────────────────────── */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
+      {/* ── En-tête collection ─────────────────────────────── */}
+      <div
+        className="relative py-10 px-4"
+        style={{
+          background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1a2e 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="max-w-3xl mx-auto">
           <Link
             href="/hadiths"
-            className="text-islam-600 dark:text-islam-400 hover:text-islam-700 text-sm flex items-center gap-1"
-            aria-label="Retour aux collections"
+            className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-amber-400 transition-colors mb-6"
           >
             ← Collections
           </Link>
 
-          <div className="flex-1 text-center">
-            <h1 className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate">
-              {meta.name}
-            </h1>
-            <p className="text-xs text-gray-500">
-              {meta.totalHadiths.toLocaleString('fr-FR')} hadiths
-            </p>
-          </div>
-
-          {/* Nom arabe — ⚠️ SACRÉ */}
-          <div
-            dir="rtl"
-            lang="ar"
-            className="arabic-text text-gray-800 dark:text-gray-200 flex-shrink-0"
-            style={{ fontSize: '1rem', lineHeight: '1.6rem' }}
-            aria-label={`Nom arabe : ${meta.nameArabic}`}
-          >
-            {/* ⚠️ Affiché tel quel — JAMAIS transformer */}
-            {meta.nameArabic}
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-3xl mx-auto px-4 py-6">
-
-        {/* ── Info collection ─────────────────────────────── */}
-        <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-6">
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-gray-100">{meta.name}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{meta.nameFr}</p>
-              <p className="text-xs text-islam-600 dark:text-islam-400 mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-100 mb-1">
+                {meta.name}
+              </h1>
+              <p className="text-slate-500 text-sm">{meta.nameFr}</p>
+              <p className="text-sm mt-2" style={{ color: '#22c55e' }}>
                 {meta.totalHadiths.toLocaleString('fr-FR')} hadiths au total
               </p>
             </div>
+
+            {/* Nom arabe — ⚠️ SACRÉ */}
             <div
               dir="rtl"
               lang="ar"
-              className="arabic-text text-islam-700 dark:text-islam-400 flex-shrink-0"
-              style={{ fontSize: '1.2rem', lineHeight: '2rem' }}
+              className="flex-shrink-0"
+              style={{
+                fontFamily: 'var(--font-amiri)',
+                fontSize: '1.8rem',
+                lineHeight: '2',
+                color: '#d4af37',
+                textShadow: '0 0 20px rgba(212,175,55,0.3)',
+              }}
+              aria-label={`Nom arabe : ${meta.nameArabic}`}
             >
+              {/* ⚠️ Affiché tel quel */}
               {meta.nameArabic}
             </div>
           </div>
-        </div>
 
-        {/* Badge traduction automatique */}
-        <div className="mb-4 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-          <span>ℹ️</span>
-          <span>
+          {/* Info page */}
+          <div
+            className="mt-4 inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94a3b8',
+            }}
+          >
             Page {currentPage} / {totalPages} · Hadiths {startHadith} à {endHadith}
-          </span>
+          </div>
         </div>
+      </div>
 
-        {/* ── Liste des hadiths ───────────────────────────── */}
+      <div className="max-w-3xl mx-auto px-4 py-8">
+
+        {/* ── Liste des hadiths ──────────────────────────── */}
         {bookData && bookData.hadiths.length > 0 ? (
-          <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm divide-y divide-gray-100 dark:divide-gray-700">
-            {bookData.hadiths.map((hadith) => (
+          <section
+            className="rounded-2xl overflow-hidden"
+            style={{
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            {bookData.hadiths.map((hadith, index) => (
               <Link
                 key={hadith.number}
                 href={`/hadiths/${collection}/${hadith.number}`}
-                className="
-                  group block px-5 py-4
-                  hover:bg-islam-50 dark:hover:bg-islam-900/20
-                  transition-colors duration-150
-                "
+                className="group block px-5 py-5 transition-all duration-200"
+                style={{
+                  background: index % 2 === 0 ? 'rgba(17,24,39,0.7)' : 'rgba(26,34,53,0.5)',
+                  borderBottom: index < (bookData.hadiths.length - 1) ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.background = 'rgba(212,175,55,0.04)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.background = index % 2 === 0 ? 'rgba(17,24,39,0.7)' : 'rgba(26,34,53,0.5)'
+                }}
                 aria-label={`Hadith n° ${hadith.number}`}
               >
-                <div className="flex items-start gap-3">
-                  {/* Numéro du hadith */}
-                  <span className="
-                    flex-shrink-0 w-10 h-10 rounded-full
-                    bg-islam-100 dark:bg-islam-900/40
-                    text-islam-700 dark:text-islam-400
-                    text-sm font-medium
-                    flex items-center justify-center
-                    group-hover:bg-islam-200 dark:group-hover:bg-islam-900/60
-                    transition-colors
-                  ">
+                <div className="flex items-start gap-4">
+                  {/* Numéro du hadith — badge doré */}
+                  <span
+                    className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%)',
+                      border: '1px solid rgba(212,175,55,0.2)',
+                      color: '#d4af37',
+                    }}
+                  >
                     {hadith.number}
                   </span>
 
@@ -151,66 +158,104 @@ export default async function CollectionPage({ params, searchParams }: Props) {
                     <p
                       dir="rtl"
                       lang="ar"
-                      className="arabic-text text-gray-800 dark:text-gray-200 line-clamp-2"
-                      style={{ fontSize: '1rem', lineHeight: '1.8rem' }}
+                      className="line-clamp-2"
+                      style={{
+                        fontFamily: 'var(--font-amiri)',
+                        fontSize: '1.1rem',
+                        lineHeight: '2',
+                        color: '#e2e8f0',
+                        direction: 'rtl',
+                        textAlign: 'right',
+                      }}
                     >
                       {/* ⚠️ Texte sacré — affiché tel quel */}
                       {hadith.arab}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">
-                      {meta.name} · n° {hadith.number}
-                      <span className="ml-2 text-islam-500">→</span>
-                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs text-slate-600">
+                        {meta.name} · n° {hadith.number}
+                      </p>
+                      <span
+                        className="text-xs text-slate-600 group-hover:text-amber-400 transition-colors"
+                      >
+                        Lire → 
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Link>
             ))}
           </section>
         ) : (
-          <div className="text-center py-12 text-gray-400">
-            <p className="text-3xl mb-2">📚</p>
-            <p>Impossible de charger les hadiths.</p>
-            <p className="text-xs mt-1">Vérifiez votre connexion ou réessayez plus tard.</p>
+          <div className="text-center py-16">
+            <p className="text-4xl mb-4">📚</p>
+            <p className="text-slate-400">Impossible de charger les hadiths.</p>
+            <p className="text-xs text-slate-600 mt-1">Vérifiez votre connexion ou réessayez plus tard.</p>
           </div>
         )}
 
         {/* ── Pagination ──────────────────────────────────── */}
         <nav
-          className="mt-6 flex items-center justify-between gap-3"
+          className="mt-8 flex items-center justify-between gap-3"
           aria-label="Navigation entre les pages de hadiths"
         >
           {currentPage > 1 ? (
             <Link
               href={`/hadiths/${collection}?page=${currentPage - 1}`}
-              className="px-4 py-2 bg-islam-50 dark:bg-islam-900/30 text-islam-700 dark:text-islam-400 rounded-lg hover:bg-islam-100 transition-colors text-sm"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#94a3b8',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = 'rgba(212,175,55,0.3)'
+                el.style.color = '#d4af37'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = 'rgba(255,255,255,0.08)'
+                el.style.color = '#94a3b8'
+              }}
             >
               ← Page {currentPage - 1}
             </Link>
-          ) : (
-            <span />
-          )}
+          ) : <span />}
 
-          <span className="text-xs text-gray-400 text-center">
+          <span className="text-xs text-slate-600">
             Page {currentPage} / {totalPages}
           </span>
 
           {currentPage < totalPages ? (
             <Link
               href={`/hadiths/${collection}?page=${currentPage + 1}`}
-              className="px-4 py-2 bg-islam-50 dark:bg-islam-900/30 text-islam-700 dark:text-islam-400 rounded-lg hover:bg-islam-100 transition-colors text-sm"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#94a3b8',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = 'rgba(212,175,55,0.3)'
+                el.style.color = '#d4af37'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = 'rgba(255,255,255,0.08)'
+                el.style.color = '#94a3b8'
+              }}
             >
               Page {currentPage + 1} →
             </Link>
-          ) : (
-            <span />
-          )}
+          ) : <span />}
         </nav>
       </div>
 
-      {/* ── Footer ──────────────────────────────────────────── */}
-      <footer className="text-center py-6 text-xs text-gray-400 dark:text-gray-600">
+      <footer className="text-center py-6 text-xs text-slate-700">
         <p>Source : api.hadith.gading.dev · Données en lecture seule</p>
       </footer>
-    </main>
+    </div>
   )
 }

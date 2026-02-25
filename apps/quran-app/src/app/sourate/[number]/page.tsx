@@ -15,7 +15,6 @@ import Basmala from '@/components/quran/Basmala'
 import SurahHeader from '@/components/quran/SurahHeader'
 import AyahCard from '@/components/quran/AyahCard'
 import Navigation from '@/components/Navigation'
-import type { AyahTranslation } from '@/types/quran'
 
 // Rendu dynamique — évite le pré-rendu statique (rate limit API en CI/build)
 export const dynamic = 'force-dynamic'
@@ -84,26 +83,17 @@ export default async function SouratePage({ params }: Props) {
           {/* Versets */}
           <section aria-label={`Versets de la sourate ${surah.nameTransliteration}`}>
             {ayahs.map((ayah, index) => {
-              // Construction de l'objet traduction
-              const translationText = translations[index]
-              const translation: AyahTranslation | undefined = translationText
-                ? {
-                    id: ayah.id,
-                    ayahId: ayah.id,
-                    languageCode: 'fr',
-                    translatorName: 'Muhammad Hamidullah',
-                    translatorKey: 'fr.hamidullah',
-                    translation: translationText,
-                    isValidated: true,
-                  }
-                : undefined
+              // ⚠️ textUthmani affiché tel quel — READ ONLY
+              const translationFr = translations[index] ?? ''
 
               return (
                 <AyahCard
                   key={ayah.id}
-                  ayah={ayah}
-                  translation={translation}
-                  surahId={surahId}
+                  surahName={surah.nameTransliteration}
+                  surahNumber={surahId}
+                  ayahNumber={ayah.ayahNumber}
+                  textArabic={ayah.textUthmani}       // ⚠️ SACRÉ — READ ONLY
+                  translationFr={translationFr}
                 />
               )
             })}

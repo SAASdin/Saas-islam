@@ -368,3 +368,45 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# Livres supplémentaires — Ronde 2
+EXTRA_BOOKS = [
+    # Hanbali classique — مجموع الفتاوى كامل (37 vol)
+    {"bkid": 7289,  "archive": 7, "madhab": "hanbali", "era": "classique",
+     "scholar_ar": "أحمد بن عبد الحليم ابن تيمية", "scholar_fr": "Ibn Taymiyyah",
+     "title_ar": "مجموع الفتاوى", "title_fr": "Majmu' al-Fatawa (37 vol)", "vols": 37},
+
+    {"bkid": 10284, "archive": 6, "madhab": "hanbali", "era": "classique",
+     "scholar_ar": "أحمد بن عبد الحليم ابن تيمية", "scholar_fr": "Ibn Taymiyyah",
+     "title_ar": "المستدرك على مجموع الفتاوى", "title_fr": "Al-Mustadrak ala Majmu' Fatawa", "vols": 3},
+
+    # Hanafi classique — Ibn Abidin (référence principale du madhab)
+    {"bkid": 21613, "archive": 5, "madhab": "hanafi",  "era": "classique",
+     "scholar_ar": "محمد أمين بن عمر ابن عابدين", "scholar_fr": "Ibn Abidin (Radd al-Muhtar)",
+     "title_ar": "الدر المختار وحاشية ابن عابدين (رد المحتار)", "title_fr": "Radd al-Muhtar - Ibn Abidin", "vols": 6},
+
+    # Maliki — 5 livres majeurs
+    {"bkid": 587,   "archive": 5, "madhab": "maliki",  "era": "classique",
+     "scholar_ar": "سحنون بن سعيد التنوخي", "scholar_fr": "Sahnun (Al-Mudawwana)",
+     "title_ar": "المدونة", "title_fr": "Al-Mudawwana (Imam Malik / Sahnun)", "vols": 4},
+
+    {"bkid": 91,    "archive": 7, "madhab": "maliki",  "era": "classique",
+     "scholar_ar": "محمد بن عبد الله الخرشي", "scholar_fr": "Al-Khurshi",
+     "title_ar": "شرح مختصر خليل للخرشي", "title_fr": "Sharh Mukhtasar Khalil - Al-Khurshi", "vols": 8},
+
+    {"bkid": 21604, "archive": 7, "madhab": "maliki",  "era": "classique",
+     "scholar_ar": "أحمد بن محمد الدردير", "scholar_fr": "Al-Dardiri + Al-Dasuqi",
+     "title_ar": "الشرح الكبير للدردير وحاشية الدسوقي", "title_fr": "Al-Sharh al-Kabir + Hashiya al-Dasuqi", "vols": 4},
+
+    {"bkid": 569,   "archive": 7, "madhab": "maliki",  "era": "classique",
+     "scholar_ar": "محمد بن محمد الحطاب", "scholar_fr": "Al-Hattab",
+     "title_ar": "مواهب الجليل في شرح مختصر خليل", "title_fr": "Mawahib al-Jalil - Al-Hattab", "vols": 6},
+
+    {"bkid": 21611, "archive": 7, "madhab": "maliki",  "era": "classique",
+     "scholar_ar": "محمد بن يوسف العبدري المواق", "scholar_fr": "Al-Mawwaq",
+     "title_ar": "التاج والإكليل لمختصر خليل", "title_fr": "Al-Taj wa al-Iklil - Al-Mawwaq", "vols": 8},
+]
+
+if __name__ == '__main__':
+    # Ce bloc ne s'exécute pas directement ici — voir main() modifié ci-dessous
+    pass

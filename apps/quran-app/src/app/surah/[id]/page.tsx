@@ -2,15 +2,13 @@
 // /surah/[id] — Page sourate complète
 // Source données : API QuranCDN (données immuables)
 // ============================================================
+// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
 export const dynamic = 'force-dynamic'
 
 import { getChapter, getVersesByChapter, TRANSLATIONS } from '@/lib/quran-cdn-api'
 import SurahPageClient from '@/components/quran/v2/SurahPageClient'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-
-// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
-export const dynamic = 'force-dynamic'
 interface Props {
   params: Promise<{ id: string }>
 }

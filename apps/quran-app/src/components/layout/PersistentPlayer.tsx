@@ -64,19 +64,29 @@ export default function PersistentPlayer() {
   }, [playbackSpeed])
 
   const handleEnded = useCallback(() => {
-    // Marquer le verset comme lu
-    const v = usePlayer.getState().currentVerse
+    const state = usePlayer.getState()
+    const v = state.currentVerse
     if (v) markVerseRead(v)
 
     if (repeatMode === 'verse') {
       audioRef.current?.play().catch(() => {})
-    } else {
-      // Auto-avance : on garde isPlaying=true et on passe au verset suivant
-      // isAutoAdvancingRef évite que l'event "pause" du browser coupe la lecture
-      isAutoAdvancingRef.current = true
-      nextVerse()
+      return
     }
-  }, [repeatMode, nextVerse])
+
+    // Vérifier si on est au dernier verset de la sourate
+    if (v) {
+      const [, ayah] = v.split(':').map(Number)
+      if (ayah >= state.currentAyahCount) {
+        // Fin de sourate → stopper proprement, ne pas passer à la suivante
+        setPlaying(false)
+        return
+      }
+    }
+
+    // Verset intermédiaire → avance automatique au suivant
+    isAutoAdvancingRef.current = true
+    nextVerse()
+  }, [repeatMode, nextVerse, setPlaying])
 
   if (!showPlayer || !currentVerse) return null
 

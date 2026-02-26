@@ -5,7 +5,8 @@
 // ============================================================
 import { useRef, useEffect, useCallback } from 'react'
 import { usePlayer } from '@/store/player'
-import { getVerseAudioUrl, getReciterSlugById } from '@/lib/quran-cdn-api'
+import { useSettings } from '@/store/settings'
+import { getVerseAudioUrl, getReciterSlugById, RECITERS } from '@/lib/quran-cdn-api'
 import { markVerseRead } from '@/lib/reading-goals'
 
 function formatTime(s: number): string {
@@ -18,11 +19,14 @@ function formatTime(s: number): string {
 export default function PersistentPlayer() {
   const {
     isPlaying, currentVerse, currentSurahName,
-    reciterName, reciterSlug,
     duration, currentTime, playbackSpeed, volume, repeatMode, showPlayer,
     setPlaying, setProgress, setVolume, setSpeed,
     nextVerse, prevVerse, closePlayer,
   } = usePlayer()
+
+  // Source unique de vérité pour le récitateur : les Settings utilisateur
+  const { reciterSlug, reciterId } = useSettings()
+  const reciterName = RECITERS.find(r => r.id === reciterId)?.name ?? 'Mishary Rashid Al-Afasy'
 
   const audioRef = useRef<HTMLAudioElement>(null)
 

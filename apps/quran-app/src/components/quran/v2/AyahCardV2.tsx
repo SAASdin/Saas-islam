@@ -171,10 +171,8 @@ export default function AyahCardV2({
           </div>
         </div>
 
-        {/* Actions (visible au hover ou sur mobile) */}
-        <div className={`flex items-center gap-1 transition-opacity ${
-          actionsVisible ? 'opacity-100' : 'opacity-0 md:opacity-0'
-        } sm:opacity-100`}>
+        {/* Actions — toujours visibles */}
+        <div className="flex items-center gap-1 opacity-100">
           {/* Play */}
           <button
             onClick={handlePlay}

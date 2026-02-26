@@ -7,6 +7,8 @@
     "node": ">=18"
   },
   "scripts": {
+    "import:quran": "tsx database/seeds/01-import-quran.ts",
+    "import:quran:dry": "DRY_RUN=true tsx database/seeds/01-import-quran.ts",
     "seed:quran": "tsx database/seeds/01_seed_quran.ts",
     "seed:hadiths": "tsx database/seeds/02_seed_hadiths.ts",
     "seed:all": "tsx database/seeds/run_all.ts",
@@ -14,7 +16,9 @@
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "db:reset": "echo 'INTERDIT en production — voir docs/CONVENTIONS.md' && exit 1"
+    "db:reset": "echo 'INTERDIT en production — voir docs/CONVENTIONS.md' && exit 1",
+    "import:hadiths": "tsx database/seeds/02-import-hadiths.ts",
+    "import:hadiths:dry": "DRY_RUN=true tsx database/seeds/02-import-hadiths.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

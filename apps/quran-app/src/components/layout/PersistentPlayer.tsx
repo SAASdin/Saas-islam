@@ -29,8 +29,11 @@ export default function PersistentPlayer() {
   const reciterName = RECITERS.find(r => r.id === reciterId)?.name ?? 'Mishary Rashid Al-Afasy'
 
   const audioRef = useRef<HTMLAudioElement>(null)
+  // Flag pour ignorer l'event "pause" déclenché par le browser après "ended"
+  // lors de l'avance automatique au verset suivant
+  const isAutoAdvancingRef = useRef(false)
 
-  // Change src quand le verset change
+  // Change src quand le verset change — joue automatiquement si isPlaying ou auto-advance
   useEffect(() => {
     if (!currentVerse || !audioRef.current) return
     const [s, a] = currentVerse.split(':').map(Number)
@@ -38,7 +41,8 @@ export default function PersistentPlayer() {
     audioRef.current.src = url
     audioRef.current.playbackRate = playbackSpeed
     audioRef.current.volume = volume
-    if (isPlaying) {
+    if (isPlaying || isAutoAdvancingRef.current) {
+      isAutoAdvancingRef.current = false
       audioRef.current.play().catch(() => setPlaying(false))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,10 +71,12 @@ export default function PersistentPlayer() {
     if (repeatMode === 'verse') {
       audioRef.current?.play().catch(() => {})
     } else {
-      setPlaying(false)
+      // Auto-avance : on garde isPlaying=true et on passe au verset suivant
+      // isAutoAdvancingRef évite que l'event "pause" du browser coupe la lecture
+      isAutoAdvancingRef.current = true
       nextVerse()
     }
-  }, [repeatMode, nextVerse, setPlaying])
+  }, [repeatMode, nextVerse])
 
   if (!showPlayer || !currentVerse) return null
 
@@ -84,7 +90,11 @@ export default function PersistentPlayer() {
         onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime, e.currentTarget.duration || 0)}
         onEnded={handleEnded}
         onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
+        onPause={() => {
+          // Ignorer le pause déclenché automatiquement par le browser après "ended"
+          if (isAutoAdvancingRef.current) return
+          setPlaying(false)
+        }}
       />
 
       {/* Info verset */}

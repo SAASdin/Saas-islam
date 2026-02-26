@@ -147,9 +147,13 @@ def main():
 
             chapter_rows = []
             for ch in chapters:
-                chapter_id_str = str(ch.get('chapterId', ''))
-                if not chapter_id_str:
+                # chapterId est LOCAL au livre (ex: "1.00", "2.00").
+                # On préfixe avec le numéro de livre pour le rendre unique dans la collection.
+                local_id = str(ch.get('chapterId', ''))
+                if not local_id:
                     continue
+                # Format unique : "bookNumber|chapterId"  ex: "1|1.00"
+                chapter_id_str = f"{bn}|{local_id}"
 
                 ch_list = ch.get('chapter', [])
                 name_ar = next((x['chapterTitle'] for x in ch_list if x['lang']=='ar'), None)

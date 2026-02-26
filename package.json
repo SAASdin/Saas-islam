@@ -1,0 +1,29 @@
+{
+  "name": "saas-islam",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plateforme islamique SaaS — Coran, Hadiths, Prière, Bibliothèque",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "seed:quran": "tsx database/seeds/01_seed_quran.ts",
+    "seed:hadiths": "tsx database/seeds/02_seed_hadiths.ts",
+    "seed:all": "tsx database/seeds/run_all.ts",
+    "seed:verify": "tsx database/seeds/verify_integrity.ts",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:reset": "echo 'INTERDIT en production — voir docs/CONVENTIONS.md' && exit 1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.33",
+    "prisma": "^5.22.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

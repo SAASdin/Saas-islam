@@ -1,0 +1,34 @@
+{
+  "name": "youtube-scraper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Service de scraping YouTube, transcription Whisper et traduction automatique — Vidéos de savants musulmans",
+  "scripts": {
+    "dev":         "tsx watch src/index.ts",
+    "start":       "node dist/index.js",
+    "build":       "tsc",
+    "type-check":  "tsc --noEmit",
+    "scrape":      "tsx src/cli/scrape.ts",
+    "transcribe":  "tsx src/cli/transcribe.ts",
+    "translate":   "tsx src/cli/translate.ts",
+    "worker":      "tsx src/queue.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "axios":            "^1.7.0",
+    "bullmq":           "^5.0.0",
+    "dotenv":           "^16.0.0",
+    "fs-extra":         "^11.0.0",
+    "googleapis":       "^143.0.0",
+    "openai":           "^4.0.0",
+    "pg":               "^8.11.0",
+    "yt-dlp-wrap":      "^2.3.12"
+  },
+  "devDependencies": {
+    "@types/fs-extra":  "^11.0.0",
+    "@types/node":      "^20.0.0",
+    "@types/pg":        "^8.10.0",
+    "tsx":              "^4.0.0",
+    "typescript":       "^5.0.0"
+  }
+}

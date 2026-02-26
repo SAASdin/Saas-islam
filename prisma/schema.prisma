@@ -21,6 +21,7 @@ datasource db {
 // ⚠️ Jamais de create/update/delete sur ces modèles
 // ════════════════════════════════════════════
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Jamais de create/update/delete
 model QuranSurah {
   id                  Int    @id @db.SmallInt
   nameArabic          String @map("name_arabic")
@@ -39,6 +40,7 @@ model QuranSurah {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — textUthmani/textSimple JAMAIS modifiés
 model QuranAyah {
   id               Int    @id @default(autoincrement())
   surahId          Int    @map("surah_id") @db.SmallInt
@@ -64,6 +66,7 @@ model QuranAyah {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Traductions validées par savants
 model QuranTranslation {
   id              Int    @id @default(autoincrement())
   ayahId          Int    @map("ayah_id")
@@ -80,6 +83,7 @@ model QuranTranslation {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Tafsirs validés
 model QuranTafsir {
   id          Int    @id @default(autoincrement())
   ayahId      Int    @map("ayah_id")
@@ -95,6 +99,7 @@ model QuranTafsir {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Texte arabe mot-par-mot IMMUABLE
 model QuranWordByWord {
   id                   Int    @id @default(autoincrement())
   ayahId               Int    @map("ayah_id")
@@ -113,13 +118,14 @@ model QuranWordByWord {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY
 model HadithCollection {
   id            Int    @id @default(autoincrement())
   nameArabic    String @map("name_arabic")
   nameFrench    String @map("name_french")
   nameEnglish   String @map("name_english")
   author        String
-  collectionKey String @map("collection_key") @unique
+  collectionKey String @map("collection_key") @unique  // = slug (bukhari, muslim, etc.)
   totalHadiths  Int?   @map("total_hadiths")
 
   hadiths       Hadith[]
@@ -128,6 +134,7 @@ model HadithCollection {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — textArabic JAMAIS modifié
 model Hadith {
   id              Int    @id @default(autoincrement())
   collectionId    Int    @map("collection_id")
@@ -147,6 +154,7 @@ model Hadith {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Duas authentiques IMMUABLES
 model Dua {
   id              Int    @id @default(autoincrement())
   category        String
@@ -163,6 +171,7 @@ model Dua {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — 99 Noms d'Allah IMMUABLES
 model AllahName {
   id                  Int    @id @db.SmallInt
   nameArabic          String @map("name_arabic")    // ⚠️ READ ONLY
@@ -177,6 +186,7 @@ model AllahName {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Mutun islamiques IMMUABLES
 model Matn {
   id              Int    @id @default(autoincrement())
   categoryId      Int    @map("category_id")
@@ -194,6 +204,7 @@ model Matn {
   @@schema("sacred")
 }
 
+// ⚠️ ZONE SACRÉE — READ ONLY — Vers des mutun IMMUABLES
 model MatnLine {
   id              Int    @id @default(autoincrement())
   matnId          Int    @map("matn_id")

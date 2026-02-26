@@ -8,6 +8,7 @@
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getHadith, getCollectionMeta, formatHadithRef } from '@/lib/hadith-api'
 import Navigation from '@/components/Navigation'
 import {
   getCollectionMeta,

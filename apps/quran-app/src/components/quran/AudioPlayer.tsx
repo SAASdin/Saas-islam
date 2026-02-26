@@ -358,7 +358,7 @@ export default function AudioPlayer({
                       dir="rtl"
                       lang="ar"
                       className="text-xs text-slate-500 mt-0.5"
-                      style={{ fontFamily: 'var(--font-amiri)' }}
+                      style={{ fontFamily: 'var(--font-kfgqpc, var(--font-amiri))' }}
                     >
                       {/* ⚠️ Nom arabe du récitateur — SACRÉ */}
                       {r.nameAr}

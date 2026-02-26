@@ -114,7 +114,7 @@ export default async function HadithsPage() {
               backgroundClip: 'text',
             }}
           >
-            Hadiths du Prophète ﷺ
+            Hadith — <span className="arabic-text" dir="rtl" lang="ar">الحديث</span> ﷺ
           </h1>
           <p className="text-slate-400 text-sm mb-8">
             18 collections · {totalHadiths.toLocaleString('fr-FR')} hadiths

@@ -56,7 +56,7 @@ export default async function UlumPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl arabic-text text-white mb-2" dir="rtl" lang="ar">علوم القرآن</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">'Ulum <span className="arabic-text" dir="rtl" lang="ar">العلوم</span></h1>
         <p className="text-slate-400 text-sm">Sciences coraniques · Références islamiques classiques</p>
         <p className="text-slate-600 text-xs mt-1 max-w-xl mx-auto">
           Inspiré de tafsir.app — تفسير، غريب ومعاني، إعراب ولغة، قراءات، أحكام، أسباب النزول

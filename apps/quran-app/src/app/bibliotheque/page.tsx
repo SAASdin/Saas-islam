@@ -104,7 +104,7 @@ export default function BibliothequeHomePage() {
               backgroundClip: 'text',
             }}
           >
-            Bibliothèque Islamique Numérique
+            Maktaba — <span className="arabic-text" dir="rtl" lang="ar">المكتبة</span>
           </h1>
 
           <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">

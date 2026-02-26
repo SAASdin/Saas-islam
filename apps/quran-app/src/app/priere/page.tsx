@@ -81,7 +81,7 @@ export default async function PriereHomePage() {
               backgroundClip: 'text',
             }}
           >
-            Horaires de Prière
+            Sala — <span className="arabic-text" dir="rtl" lang="ar">الصلاة</span>
           </h1>
 
           {prayerData && (

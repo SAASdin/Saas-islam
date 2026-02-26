@@ -160,7 +160,7 @@ export async function retrievePassages(query: RetrievalQuery): Promise<Retrieved
   try {
     const rows = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(sql, ...sqlParams);
 
-    return rows.map((r, i) => ({
+    return rows.map((r: Record<string, unknown>, i: number) => ({
       id: r.id as number,
       answerArabic: r.answer_arabic as string,
       chapterHint: r.chapter_hint as string | null,

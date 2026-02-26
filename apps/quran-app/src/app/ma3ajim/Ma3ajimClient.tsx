@@ -27,6 +27,10 @@ const DICTIONARIES = [
       { name: 'بصائر ذوي التمييز', author: 'الفيروزآبادي', died: '٨١٧ هـ', vols: '٣ مجلدات', desc: 'تفسير لطائف القرآن ومفرداته', icon: '📙' },
       { name: 'فهرس جذور كلمات القرآن', author: '', died: '', vols: '٨ مجلدات', desc: 'فهرس شامل لجذور كلمات القرآن الكريم', icon: '🗂️' },
       { name: 'المعجم الاشتقاقي المؤصل', author: 'محمد حسن جبل', died: '١٤٣٦ هـ', vols: '٤ مجلدات', desc: 'معجم في أصول الألفاظ العربية', icon: '🔬' },
+      { name: 'التبيان في أقسام القرآن', author: 'ابن القيم', died: '٧٥١ هـ', vols: 'مجلد', desc: 'في أقسام القرآن الكريم ودلالاتها', icon: '💡' },
+      { name: 'الكليات', author: 'أبو البقاء الكفوي', died: '١٠٩٤ هـ', vols: 'مجلد', desc: 'معجم في المصطلحات والفروق اللغوية', icon: '📋' },
+      { name: 'النهاية في غريب الحديث', author: 'ابن الأثير', died: '٦٠٦ هـ', vols: '٥ مجلدات', desc: 'في غريب الحديث والأثر', icon: '📜' },
+      { name: 'غريب القرآن', author: 'ابن قتيبة', died: '٢٧٦ هـ', vols: 'مجلد', desc: 'تفسير الألفاظ الغريبة في القرآن الكريم', icon: '🔍' },
     ]
   },
   {
@@ -37,11 +41,24 @@ const DICTIONARIES = [
       { name: 'لسان العرب', author: 'ابن منظور', died: '٧١١ هـ', vols: '٣٦ مجلدًا', desc: 'أكبر معاجم اللغة العربية على الإطلاق', icon: '📚' },
       { name: 'القاموس المحيط', author: 'الفيروزآبادي', died: '٨١٧ هـ', vols: '٥ مجلدات', desc: 'قاموس شامل للغة العربية', icon: '🌊' },
       { name: 'مقاييس اللغة', author: 'ابن فارس', died: '٣٩٥ هـ', vols: '٥ مجلدات', desc: 'في أصول الكلمات العربية وجذورها', icon: '📐' },
+      { name: 'تاج العروس', author: 'الزبيدي', died: '١٢٠٥ هـ', vols: '٤٠ مجلدًا', desc: 'أضخم معجم عربي — شرح القاموس المحيط', icon: '👑' },
+      { name: 'المصباح المنير', author: 'الفيومي', died: '٧٧٠ هـ', vols: 'مجلدان', desc: 'في غريب الشرح الكبير للرافعي', icon: '🕯️' },
+      { name: 'مختار الصحاح', author: 'الرازي', died: '٦٦٦ هـ', vols: 'مجلد', desc: 'مختصر الصحاح للجوهري', icon: '📒' },
+    ]
+  },
+  {
+    category: 'specialized',
+    categoryLabel: 'معاجم متخصصة',
+    books: [
+      { name: 'معجم أسماء القرآن الكريم', author: '', died: '', vols: 'مجلد', desc: 'فهرس بأسماء وأوصاف القرآن الكريم', icon: '📿' },
+      { name: 'معجم الأنبياء والرسل', author: '', died: '', vols: 'مجلد', desc: 'قاموس بأسماء الأنبياء والرسل في القرآن والسنة', icon: '🌟' },
+      { name: 'معجم المصطلحات الفقهية', author: '', died: '', vols: 'مجلدان', desc: 'تعريفات المصطلحات الفقهية عند المذاهب الأربعة', icon: '⚖️' },
+      { name: 'معجم علوم الحديث', author: '', died: '', vols: 'مجلد', desc: 'مصطلحات علوم الحديث النبوي الشريف', icon: '🏛️' },
     ]
   },
 ]
 
-// Racines communes dans le Coran
+// Racines communes dans le Coran (40 racines)
 const COMMON_ROOTS = [
   { root: 'حمد', meaning: 'Louange' },
   { root: 'رحم', meaning: 'Miséricorde' },
@@ -63,6 +80,26 @@ const COMMON_ROOTS = [
   { root: 'رسل', meaning: 'Message' },
   { root: 'قوم', meaning: 'Peuple' },
   { root: 'سمع', meaning: 'Audition' },
+  { root: 'قلب', meaning: 'Cœur' },
+  { root: 'نفس', meaning: 'Âme' },
+  { root: 'جنن', meaning: 'Paradis' },
+  { root: 'نار', meaning: 'Feu' },
+  { root: 'خوف', meaning: 'Crainte' },
+  { root: 'رجو', meaning: 'Espoir' },
+  { root: 'دعو', meaning: 'Invocation' },
+  { root: 'ذكر', meaning: 'Rappel' },
+  { root: 'حقق', meaning: 'Vérité' },
+  { root: 'ظلم', meaning: 'Injustice' },
+  { root: 'عدل', meaning: 'Justice' },
+  { root: 'أرض', meaning: 'Terre' },
+  { root: 'سمو', meaning: 'Ciel' },
+  { root: 'موت', meaning: 'Mort' },
+  { root: 'حيو', meaning: 'Vie' },
+  { root: 'خلق', meaning: 'Création' },
+  { root: 'أمر', meaning: 'Commandement' },
+  { root: 'نهي', meaning: 'Interdiction' },
+  { root: 'سجد', meaning: 'Prosternation' },
+  { root: 'صلو', meaning: 'Prière' },
 ]
 
 export default function Ma3ajimClient() {
@@ -80,7 +117,7 @@ export default function Ma3ajimClient() {
     setLoading(true)
     setSearched(true)
     try {
-      const params = new URLSearchParams({ q, size: '20', page: String(p) })
+      const params = new URLSearchParams({ q, size: '30', page: String(p) })
       const r = await fetch(`https://api.qurancdn.com/api/qdc/search?${params}`)
       const data: SearchResponse = await r.json()
       setResults(data.result?.verses ?? [])
@@ -109,7 +146,9 @@ export default function Ma3ajimClient() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl arabic-text text-white mb-2" dir="rtl" lang="ar">المعاجم</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">
+          Ma3ajim <span className="arabic-text" dir="rtl" lang="ar">المعاجم</span>
+        </h1>
         <p className="text-slate-400 text-sm">Dictionnaire Coranique · Recherche par racine</p>
       </div>
 
@@ -226,12 +265,12 @@ export default function Ma3ajimClient() {
                 })}
               </div>
 
-              {total > 20 && (
+              {total > 30 && (
                 <div className="flex items-center justify-center gap-3 mt-8">
                   <button onClick={() => doSearch(query, page - 1)} disabled={page <= 1}
                     className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 text-sm disabled:opacity-40 hover:bg-white/10 transition-colors">← Précédent</button>
-                  <span className="text-slate-500 text-sm">{page} / {Math.ceil(total / 20)}</span>
-                  <button onClick={() => doSearch(query, page + 1)} disabled={page >= Math.ceil(total / 20)}
+                  <span className="text-slate-500 text-sm">{page} / {Math.ceil(total / 30)}</span>
+                  <button onClick={() => doSearch(query, page + 1)} disabled={page >= Math.ceil(total / 30)}
                     className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 text-sm disabled:opacity-40 hover:bg-white/10 transition-colors">Suivant →</button>
                 </div>
               )}

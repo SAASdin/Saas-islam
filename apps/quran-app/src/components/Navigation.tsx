@@ -9,11 +9,16 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const NAV_LINKS = [
-  { href: '/', label: 'Coran', icon: '📖' },
-  { href: '/hadiths', label: 'Hadiths', icon: '📜' },
-  { href: '/priere', label: 'Prière', icon: '🕌' },
-  { href: '/bibliotheque', label: 'Bibliothèque', icon: '📚' },
-  { href: '/search', label: '🔍', icon: '' },
+  { href: '/', label: 'Coran' },
+  { href: '/surah', label: 'Sourates' },
+  { href: '/juz/1', label: "Juz'" },
+  { href: '/mushaf/1', label: 'Mushaf' },
+  { href: '/hadiths', label: 'Hadiths' },
+  { href: '/ma3ajim', label: "Ma3ajim" },
+  { href: '/ulum', label: "'Ulum" },
+  { href: '/bibliotheque', label: 'Maktaba' },
+  { href: '/priere', label: 'Sala' },
+  { href: '/search', label: 'Bahth' },
 ]
 
 export default function Navigation() {
@@ -52,8 +57,12 @@ export default function Navigation() {
           </span>
         </Link>
 
-        {/* Navigation links */}
-        <nav className="flex items-center gap-1 sm:gap-2" aria-label="Navigation principale">
+        {/* Navigation links — scrollable horizontalement sur mobile */}
+        <nav
+          className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide"
+          aria-label="Navigation principale"
+          style={{ WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none', scrollbarWidth: 'none' }}
+        >
           {NAV_LINKS.map((link) => {
             const active = isActive(link.href)
             return (
@@ -61,7 +70,7 @@ export default function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={`
-                  relative px-3 py-2 rounded-lg text-sm font-medium
+                  relative shrink-0 px-3 py-2 rounded-lg text-sm font-medium
                   transition-all duration-200
                   ${active
                     ? 'text-amber-400 bg-amber-400/10'

@@ -216,6 +216,7 @@ export default async function SurahPage({ params }: Props) {
               translationFr={translationsFr[index]}
               isAutoTranslation={false}
               fontSize={1.8}
+              totalAyahs={surah.ayahCount}
             />
           ))}
         </section>

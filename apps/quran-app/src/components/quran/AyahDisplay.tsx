@@ -10,7 +10,7 @@
 
 import type { AyahWithTranslation } from '@/types/quran'
 import { formatAyahRef } from '@/types/quran'
-import { AyahPlayButton } from './AudioPlayer'
+import AyahAudio from './AyahAudio'
 
 interface AyahDisplayProps {
   ayah: AyahWithTranslation
@@ -18,6 +18,8 @@ interface AyahDisplayProps {
   isAutoTranslation?: boolean
   showTransliteration?: boolean
   fontSize?: number
+  /** Nombre total de versets dans la sourate — active le mode lecture continue */
+  totalAyahs?: number
 }
 
 export default function AyahDisplay({
@@ -25,6 +27,7 @@ export default function AyahDisplay({
   translationFr,
   isAutoTranslation = false,
   fontSize = 1.8,
+  totalAyahs,
 }: AyahDisplayProps) {
   const safeFontSize = Math.max(1.2, fontSize)
   const surahName = ayah.surah?.nameTransliteration ?? `Sourate ${ayah.surahId}`
@@ -89,21 +92,29 @@ export default function AyahDisplay({
           </p>
 
           {/* Référence — toujours visible */}
-          <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center justify-between mt-2 gap-3">
             <p className="text-xs text-slate-500 font-medium">
               — {ref}
               {!isAutoTranslation && ' · Hamidullah'}
             </p>
-            {/* Bouton play */}
-            <AyahPlayButton ayahNumberQuran={ayah.ayahNumberQuran} />
+            {/* Lecteur audio intégré */}
+            <AyahAudio
+              surahNumber={ayah.surahId}
+              ayahNumber={ayah.ayahNumber}
+              totalAyahs={totalAyahs ?? ayah.ayahNumber}
+            />
           </div>
         </div>
       )}
 
-      {/* Si pas de traduction — afficher juste le bouton play */}
+      {/* Si pas de traduction — afficher quand même le lecteur audio */}
       {!translationFr && (
         <div className="flex justify-end mt-2 pr-2">
-          <AyahPlayButton ayahNumberQuran={ayah.ayahNumberQuran} />
+          <AyahAudio
+            surahNumber={ayah.surahId}
+            ayahNumber={ayah.ayahNumber}
+            totalAyahs={totalAyahs ?? ayah.ayahNumber}
+          />
         </div>
       )}
 

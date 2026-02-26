@@ -1,0 +1,142 @@
+# ============================================================
+# ci.yml — Pipeline CI principal
+# Déclenché sur : push dev/* + PR vers main
+# Ordre : lint → test:integrity (BLOQUANT) → test:unit → build
+# ============================================================
+
+name: 🌙 CI — NoorApp
+
+on:
+  push:
+    branches:
+      - 'dev/**'
+  pull_request:
+    branches:
+      - main
+
+# Annule les runs précédents sur la même branche
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # JOB 1 : Lint + TypeScript check
+  # ────────────────────────────────────────────────────────────
+  lint:
+    name: 🔍 Lint & TypeScript
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Installer les dépendances (quran-app)
+        working-directory: apps/quran-app
+        run: npm ci
+
+      - name: 🔍 TypeScript check
+        working-directory: apps/quran-app
+        run: npx tsc --noEmit
+
+      - name: 🧹 ESLint
+        working-directory: apps/quran-app
+        run: npx eslint src/ --max-warnings=0
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2 : Tests d'intégrité logiques (BLOQUANT, sans DB)
+  # Les tests DB complets sont dans integrity-tests.yml
+  # Ici : vérifications de structure + logique métier (sans import)
+  # ────────────────────────────────────────────────────────────
+  test-integrity:
+    name: 🛡️ Tests Intégrité (logique, sans DB)
+    runs-on: ubuntu-latest
+    # Pas de service PostgreSQL — les tests DB sont skippés automatiquement
+    # via `describeDB = DATABASE_URL ? describe : describe.skip`
+
+    env:
+      NODE_ENV: test
+      # Pas de DATABASE_URL → tests DB skippés, tests logiques actifs
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Installer les dépendances (racine)
+        run: npm ci
+
+      - name: 🔧 Générer le client Prisma
+        run: npx prisma generate
+
+      - name: 🧪 Tests d'intégrité logiques — ZONE SACRÉE
+        run: npm run test:ci
+        # --bail activé : un seul test raté = tout s'arrête
+        # Tests DB skippés automatiquement (pas de DATABASE_URL)
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 3 : Tests unitaires (dépend de test-integrity)
+  # ────────────────────────────────────────────────────────────
+  test-unit:
+    name: 🧪 Tests Unitaires
+    runs-on: ubuntu-latest
+    needs: test-integrity
+    # Si test:integrity échoue → ce job est annulé automatiquement
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Installer les dépendances (racine)
+        run: npm ci
+
+      - name: 🧪 Tests unitaires
+        run: npm run test:unit
+        # Pas de DATABASE_URL — tests purement logiques (helpers, formatters, etc.)
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 4 : Build Next.js (dépend de lint + test-integrity)
+  # ────────────────────────────────────────────────────────────
+  build:
+    name: 🏗️ Build Next.js
+    runs-on: ubuntu-latest
+    needs: [lint, test-integrity]
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Installer les dépendances (quran-app)
+        working-directory: apps/quran-app
+        run: npm ci
+
+      - name: 🏗️ Build Next.js
+        working-directory: apps/quran-app
+        run: npm run build
+        env:
+          # Variables factices pour le build (pas de vraie DB en build)
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+          NEXT_PUBLIC_APP_NAME: NoorApp

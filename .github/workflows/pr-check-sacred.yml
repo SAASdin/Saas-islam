@@ -1,0 +1,126 @@
+# ============================================================
+# pr-check-sacred.yml — Protection des données islamiques sacrées
+# Se déclenche quand une PR modifie des fichiers sensibles
+# ⚠️  ZONE SACRÉE : toute modification nécessite 2 approvals
+# ============================================================
+
+name: 🛡️ Protection Données Sacrées
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'database/seeds/**'
+      - 'database/integrity/**'
+      - 'prisma/schema.prisma'
+      - 'database/migrations/**'
+
+jobs:
+  sacred-data-check:
+    name: ⚠️ Vérification Zone Sacrée
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Détecter les fichiers modifiés via git diff ──────────
+      - name: 🔍 Détecter fichiers zone sacrée modifiés
+        id: sacred-check
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep -E \
+            "^(database/seeds/|database/integrity/|prisma/schema\.prisma|database/migrations/)" \
+            || true)
+
+          if [ -n "$CHANGED" ]; then
+            echo "has_sacred_changes=true" >> $GITHUB_OUTPUT
+            # Encode pour usage dans le step suivant
+            FILES_LIST=$(echo "$CHANGED" | head -20 | sed 's/^/- /' | tr '\n' '|')
+            echo "changed_files=$FILES_LIST" >> $GITHUB_OUTPUT
+            echo "⚠️ Fichiers sacrés modifiés détectés :"
+            echo "$CHANGED"
+          else
+            echo "has_sacred_changes=false" >> $GITHUB_OUTPUT
+            echo "✅ Aucun fichier sacré modifié"
+          fi
+
+      # ── Poster le commentaire d'alerte ───────────────────────
+      - name: 💬 Poster commentaire d'alerte sur la PR
+        if: steps.sacred-check.outputs.has_sacred_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const rawFiles = '${{ steps.sacred-check.outputs.changed_files }}';
+            const filesList = rawFiles.split('|').filter(Boolean).join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ⚠️ DONNÉES SACRÉES MODIFIÉES
+
+Cette PR touche à des **données islamiques** (Coran, Hadiths, schéma base de données).
+
+**Validation des deux collaborateurs (Moha ET Bilal) obligatoire avant merge.**
+
+### Fichiers concernés
+\`\`\`
+${filesList}
+\`\`\`
+
+### Checklist obligatoire pour les reviewers
+- [ ] Aucun texte arabe modifié ou altéré
+- [ ] Aucun \`INSERT / UPDATE / DELETE\` non autorisé sur les tables sacrées
+- [ ] Les hashes SHA-256 dans \`database/integrity/\` sont cohérents
+- [ ] Les tests d\'intégrité (\`npm run test:integrity\`) passent localement
+
+> **وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ** — Cette règle est non-négociable.`
+            });
+
+      # ── Ajouter le label sacred-data-review ─────────────────
+      - name: 🏷️ Ajouter le label sacred-data-review
+        if: steps.sacred-check.outputs.has_sacred_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'sacred-data-review',
+                color: '006400',
+                description: 'PR modifiant des données islamiques sacrées — 2 approvals requis'
+              });
+            } catch (e) { /* label existe déjà */ }
+
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['sacred-data-review']
+            });
+
+      # ── Vérifier cohérence des hashes ───────────────────────
+      - name: 🔐 Vérifier cohérence des hashes d'intégrité
+        if: steps.sacred-check.outputs.has_sacred_changes == 'true'
+        run: |
+          if [ -f "database/integrity/quran-hashes.json" ]; then
+            COUNT=$(python3 -c "import json; d=json.load(open('database/integrity/quran-hashes.json')); print(len(d))")
+            echo "✅ quran-hashes.json : $COUNT entrées"
+            [ "$COUNT" -eq 6236 ] || { echo "❌ Attendu 6236, trouvé $COUNT"; exit 1; }
+          fi
+
+          if [ -f "database/integrity/hadith-hashes.json" ]; then
+            COUNT=$(python3 -c "import json; d=json.load(open('database/integrity/hadith-hashes.json')); print(len(d))")
+            echo "✅ hadith-hashes.json : $COUNT entrées"
+            [ "$COUNT" -ge 36000 ] || { echo "❌ Attendu ≥36000, trouvé $COUNT"; exit 1; }
+          fi
+
+          echo "✅ Hashes d'intégrité cohérents"

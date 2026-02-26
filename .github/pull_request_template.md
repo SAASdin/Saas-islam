@@ -1,42 +1,40 @@
-# Pull Request — Saas-islam
-
 ## Description
 
-<!-- Résumé clair de ce qui a été fait -->
+[Décris ce que fait cette PR]
+
+---
 
 ## Type de changement
 
-- [ ] Nouvelle fonctionnalité
-- [ ] Correction de bug
-- [ ] Refactoring
-- [ ] Documentation
-- [ ] Infrastructure / configuration
+- [ ] Fonctionnalité UI/UX
+- [ ] Backend / API
+- [ ] Base de données (zone applicative)
+- [ ] Base de données (zone sacrée) ⚠️
 
-## ⚠️ Checklist obligatoire avant merge
+---
 
-### Données religieuses
-- [ ] Je n'ai modifié AUCUN contenu religieux (Coran, Hadiths, Mutun, Duas...)
-- [ ] Je n'ai écrit AUCUN `INSERT / UPDATE / DELETE / ALTER` sur les tables sacrées
-- [ ] Si des données religieuses ont été importées → hash SHA-256 inclus dans `database/integrity/`
-- [ ] Je n'ai appliqué AUCUNE transformation (trim, normalize, lowercase) sur du texte arabe
+## Checklist données islamiques
 
-### Code
-- [ ] Aucun secret / clé API dans le code commité
-- [ ] Le fichier `.env.example` est à jour si de nouvelles variables sont nécessaires
-- [ ] Les fichiers suivent la structure définie dans `docs/ISLAMIC_PLATFORM.md`
-- [ ] Je n'ai pas touché aux branches / fichiers de l'autre développeur
+- [ ] Je n'ai pas modifié de texte arabe
+- [ ] Je n'ai pas modifié de traduction validée
+- [ ] Les tests d'intégrité passent (`test:integrity`)
+- [ ] Si zone sacrée modifiée : hash SHA-256 vérifié et documenté
 
-### Tests
-- [ ] Les tests d'intégrité passent (`tests/integrity/`)
-- [ ] Aucune régression sur les fonctionnalités existantes
+---
 
-## Tests effectués
+## Tests
 
-<!-- Décris comment tu as testé les changements -->
+- [ ] Tests unitaires passent
+- [ ] Tests d'intégrité passent
+- [ ] Testé manuellement
+
+---
 
 ## Captures d'écran (si applicable)
 
 <!-- Screenshots de l'UI si changements visuels -->
+
+---
 
 ## Notes pour le reviewer
 

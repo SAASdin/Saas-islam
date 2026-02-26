@@ -15,6 +15,8 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import type { AyahWithTranslation } from '@/types/quran'
 
+// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
+export const dynamic = 'force-dynamic'
 interface Props {
   params: Promise<{ id: string }>
 }

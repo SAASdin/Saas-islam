@@ -1,0 +1,105 @@
+# ============================================================
+# integrity-tests.yml — Tests d'intégrité données islamiques
+# Se déclenche sur chaque PR vers main + push sur main/dev/*
+# ⚠️  Un seul test échoué = PR bloquée (--bail)
+# ============================================================
+
+name: 🌙 Integrity Tests — Sacred Data
+
+on:
+  push:
+    branches:
+      - main
+      - 'dev/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  integrity-tests:
+    name: Vérification intégrité données islamiques
+    runs-on: ubuntu-latest
+
+    # ── Service PostgreSQL ──────────────────────────────────
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: saas_islam_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://ci_user:ci_password@localhost:5432/saas_islam_test
+      NODE_ENV: test
+
+    steps:
+      # ── Checkout ─────────────────────────────────────────
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # ── Node.js ──────────────────────────────────────────
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      # ── Dépendances ───────────────────────────────────────
+      - name: 📦 Installer les dépendances (racine)
+        run: npm ci
+
+      # ── Prisma ───────────────────────────────────────────
+      - name: 🔧 Générer le client Prisma
+        run: npx prisma generate
+
+      - name: 🗄️  Créer le schéma DB (prisma db push)
+        run: npx prisma db push --accept-data-loss --skip-generate
+
+      # ── Seed des données islamiques ───────────────────────
+      - name: 🌙 Importer le Coran (6236 versets)
+        run: npx tsx database/seeds/01-import-quran.ts
+        timeout-minutes: 5
+
+      - name: 📚 Importer les hadiths (8 collections)
+        run: npx tsx database/seeds/02-import-hadiths.ts
+        timeout-minutes: 10
+
+      # ── Tests d'intégrité ─────────────────────────────────
+      - name: 🧪 Tests d'intégrité Coran
+        run: npm run test:ci -- --testPathPatterns "quran-integrity"
+        timeout-minutes: 5
+
+      - name: 🧪 Tests d'intégrité Hadiths
+        run: npm run test:ci -- --testPathPatterns "hadith-integrity"
+        timeout-minutes: 3
+
+      - name: 🧪 Tests d'intégrité Affichage
+        run: npm run test:ci -- --testPathPatterns "display-integrity"
+        timeout-minutes: 2
+
+      # ── Rapport ───────────────────────────────────────────
+      - name: 📊 Upload rapport d'import
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrity-reports
+          path: |
+            database/seeds/reports/
+            database/integrity/
+          retention-days: 30
+
+      # ── TypeScript check sur l'app ────────────────────────
+      - name: 🔍 TypeScript check (quran-app)
+        working-directory: apps/quran-app
+        run: |
+          npm ci
+          npx tsc --noEmit
+        continue-on-error: false

@@ -13,6 +13,8 @@ import Navigation from '@/components/Navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
+// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Bibliothèque Islamique — المكتبة الإسلامية',
   description: 'Des centaines de livres islamiques classiques — tafsir, hadith, fiqh, aqida, sira.',

@@ -2,8 +2,10 @@
 // ============================================================
 // TafsirPanel.tsx — Panneau Tafsir complet (29 livres)
 // Sources: spa5k/tafsir_api (GitHub JSON) — données sacrées READ ONLY
+// + Section 🎧 Tafsir Audio — read.tafsir.one (8 tafsirs)
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import {
   TAFSIR_BOOKS,
   CATEGORY_LABELS,
@@ -13,6 +15,7 @@ import {
   type TafsirBook,
   type TafsirCategory,
 } from '@/lib/tafsir-books-api'
+import { TAFSIR_ONE_BOOKS, TAFSIR_ONE_BOOK_KEYS } from '@/lib/tafsir-one-api'
 
 interface TafsirPanelProps {
   isOpen: boolean
@@ -102,6 +105,35 @@ export default function TafsirPanel({ isOpen, onClose, verseKey }: TafsirPanelPr
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+        </div>
+
+        {/* ── Section 🎧 Tafsir Audio (read.tafsir.one) ── */}
+        <div className="px-3 py-2.5 border-b border-white/10 shrink-0 bg-[#d4af37]/5">
+          <p className="text-[10px] text-[#d4af37]/70 font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
+            🎧 Tafsir Audio
+            <span className="text-slate-600 normal-case font-normal">— read.tafsir.one</span>
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {TAFSIR_ONE_BOOK_KEYS.map((key) => {
+              const book = TAFSIR_ONE_BOOKS[key]
+              const [surah, ayah] = verseKey ? verseKey.split(':') : ['1', '1']
+              return (
+                <Link
+                  key={key}
+                  href={`/tafsir-audio/${key}?s=${surah ?? 1}&a=${ayah ?? 1}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] bg-[#d4af37]/10 hover:bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/20 hover:border-[#d4af37]/40 transition-all whitespace-nowrap"
+                  title={book.author}
+                >
+                  <span>🔊</span>
+                  <span style={{ fontFamily: 'var(--font-amiri)' }} dir="rtl" lang="ar">
+                    {book.title.split(' ').slice(0, 3).join(' ')}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
 
         {/* ── Sélecteur rapide ── */}

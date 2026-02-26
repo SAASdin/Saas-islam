@@ -19,8 +19,9 @@ const NAV_LINKS = [
   { href: '/plan',        label: 'Plan'         },
   { href: '/progress',    label: 'Progression'  },
   { href: '/memorize',    label: 'Mémoriser'    },
-  { href: '/hadiths',     label: 'Hadiths'      },
-  { href: '/priere',      label: 'Prière'       },
+  { href: '/hadiths',       label: 'Hadiths'      },
+  { href: '/priere',        label: 'Prière'       },
+  { href: '/tafsir-audio',  label: 'Tafsir 🎧'   },
 ]
 
 export default function TopNavbar() {

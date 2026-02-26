@@ -66,7 +66,7 @@ export default function AyahDisplay({
           style={{
             fontSize: `${safeFontSize}rem`,
             lineHeight: `${safeFontSize * 1.8}rem`,
-            fontFamily: 'var(--font-amiri)',
+            fontFamily: 'var(--font-kfgqpc, var(--font-amiri))',
           }}
         >
           {/* ⚠️ Rendu tel quel depuis la BDD — JAMAIS transformer */}

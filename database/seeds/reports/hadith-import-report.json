@@ -1,0 +1,67 @@
+{
+  "date": "2026-02-25T08:59:26.986Z",
+  "status": "SUCCESS",
+  "dryRun": false,
+  "durationMs": 99394,
+  "totalHadiths": 36091,
+  "globalIntegrityHash": "3b5c7d1e2fe6bef49e7dcfcbdb828ff94d747c882b5ca883cb9828000b1b1d01",
+  "collections": [
+    {
+      "key": "bukhari",
+      "name": "Sahih al-Bukhari",
+      "imported": 7580,
+      "minRequired": 7563,
+      "exactRequired": null
+    },
+    {
+      "key": "muslim",
+      "name": "Sahih Muslim",
+      "imported": 7360,
+      "minRequired": 7300,
+      "exactRequired": null
+    },
+    {
+      "key": "abudawud",
+      "name": "Sunan Abi Dawud",
+      "imported": 5272,
+      "minRequired": 4000,
+      "exactRequired": null
+    },
+    {
+      "key": "tirmidhi",
+      "name": "Jami' At-Tirmidhi",
+      "imported": 3924,
+      "minRequired": 3000,
+      "exactRequired": null
+    },
+    {
+      "key": "nasai",
+      "name": "Sunan an-Nasa'i",
+      "imported": 5679,
+      "minRequired": 5000,
+      "exactRequired": null
+    },
+    {
+      "key": "ibnmajah",
+      "name": "Sunan Ibn Majah",
+      "imported": 4338,
+      "minRequired": 4000,
+      "exactRequired": null
+    },
+    {
+      "key": "riyadussalihin",
+      "name": "Riyad as-Salihin",
+      "imported": 1896,
+      "minRequired": 1800,
+      "exactRequired": null
+    },
+    {
+      "key": "nawawi40",
+      "name": "Forty Hadith of an-Nawawi",
+      "imported": 42,
+      "minRequired": 40,
+      "exactRequired": 42
+    }
+  ],
+  "errors": []
+}

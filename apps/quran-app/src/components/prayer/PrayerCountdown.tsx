@@ -53,9 +53,11 @@ export default function PrayerCountdown({ prayers }: Props) {
   const [now, setNow] = useState<Date | null>(null)
 
   useEffect(() => {
-    setNow(new Date())
+    // setTimeout(0) pour éviter le setState synchrone dans l'effect (ESLint)
+    // Initialisation côté client uniquement — évite le mismatch SSR/hydration
+    const timeout = setTimeout(() => setNow(new Date()), 0)
     const interval = setInterval(() => setNow(new Date()), 60_000)
-    return () => clearInterval(interval)
+    return () => { clearTimeout(timeout); clearInterval(interval) }
   }, [])
 
   if (!now) {

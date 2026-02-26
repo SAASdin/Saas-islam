@@ -83,7 +83,7 @@ export default function SurahCard({ surah }: SurahCardProps) {
         lang="ar"
         className="flex-shrink-0 text-xl group-hover:text-amber-300 transition-colors"
         style={{
-          fontFamily: 'var(--font-amiri)',
+          fontFamily: 'var(--font-kfgqpc, var(--font-amiri))',
           color: '#f1f5f9',
           lineHeight: '1.5',
         }}

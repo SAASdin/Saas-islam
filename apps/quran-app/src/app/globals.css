@@ -27,8 +27,12 @@
   --color-text: #f1f5f9;
   --color-text-muted: #94a3b8;
 
-  /* Polices */
-  --font-amiri: 'Amiri', 'Scheherazade New', Georgia, serif;
+  /* Polices — KFGQPC est la police officielle du Mushaf de Médine
+     ⚠️  Ne jamais inverser cet ordre : KFGQPC doit toujours être en premier */
+  --font-kfgqpc: 'KFGQPC Uthmanic Script HAFS', 'Amiri', 'Scheherazade New', serif;
+  --font-amiri:  'Amiri', 'Scheherazade New', Georgia, serif;
+  /* Stack complète pour tout texte coranique — priorité KFGQPC */
+  --font-quran:  var(--font-kfgqpc, var(--font-amiri));
 
   /* Taille police arabe (ajustable par utilisateur) */
   --arabic-font-size: 1.8rem;
@@ -106,9 +110,10 @@ body {
    Toujours appliquer ces classes sur le texte islamique
    ════════════════════════════════════════════ */
 
-/* Classe de base pour TOUT texte arabe islamique */
+/* Classe de base pour TOUT texte arabe islamique
+   ⚠️  Police KFGQPC prioritaire — ne jamais changer l'ordre */
 .arabic-text {
-  font-family: var(--font-amiri);
+  font-family: var(--font-kfgqpc, var(--font-amiri));
   direction: rtl;
   text-align: right;
   unicode-bidi: embed;
@@ -118,9 +123,10 @@ body {
   overflow-wrap: normal;
 }
 
-/* Texte coranique — police maximale et respectueuse */
+/* Texte coranique — KFGQPC Uthmanic Script HAFS obligatoire
+   ⚠️  JAMAIS rétrograder Amiri en premier — police du Mushaf officiel */
 .quran-text {
-  font-family: var(--font-amiri);
+  font-family: var(--font-kfgqpc, var(--font-amiri));
   direction: rtl;
   text-align: right;
   unicode-bidi: embed;
@@ -132,9 +138,9 @@ body {
   word-spacing: 0.1em;
 }
 
-/* Bismillah — affichage spécial centré */
+/* Bismillah — KFGQPC requise pour la Basmala officielle */
 .bismillah {
-  font-family: var(--font-amiri);
+  font-family: var(--font-kfgqpc, var(--font-amiri));
   direction: rtl;
   text-align: center;
   font-size: 2.2rem;
@@ -155,7 +161,7 @@ body {
   background: linear-gradient(135deg, var(--color-gold) 0%, #b8962a 100%);
   color: #0a0f1e;
   font-size: 0.75rem;
-  font-family: var(--font-amiri);
+  font-family: var(--font-kfgqpc, var(--font-amiri));
   font-weight: 700;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
@@ -172,7 +178,7 @@ body {
   border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 9999px;
   font-size: 0.625rem;
-  font-family: var(--font-amiri);
+  font-family: var(--font-kfgqpc, var(--font-amiri));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

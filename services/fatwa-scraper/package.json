@@ -1,0 +1,25 @@
+{
+  "name": "fatwa-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test-cf": "tsx src/test-cf-bypass.ts",
+    "scrape": "tsx src/shamela-scraper.ts",
+    "translate": "tsx src/auto-translator.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.0.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.6.2",
+    "crypto": "*",
+    "dotenv": "^16.6.1",
+    "patchright": "^1.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.11",
+    "prisma": "^6.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "_comment": "Hash d'intégrité des Mutun islamiques — NE PAS MODIFIER",
+  "_generated": "2026-02-25T14:30:00Z",
+  "_note": "Hash calculé uniquement sur les bayts VÉRIFIÉS (pas les placeholders)",
+  "verified_bayts_sha256": "47c08098416d5d6e9d8dde05aeeb39b335e728e991ed56f568d5af4208827ebe",
+  "verified_count": 18,
+  "breakdown": {
+    "baiquniyya": {
+      "verified_bayts": "1-10",
+      "total_bayts": 34,
+      "placeholder_bayts": "11-34",
+      "source": "mutun-data.ts (apps/memorization-app/src/lib/mutun-data.ts)"
+    },
+    "tuhfat_atfal": {
+      "verified_bayts": "1-8",
+      "total_bayts": 61,
+      "placeholder_bayts": "9-61",
+      "source": "mutun-data.ts"
+    },
+    "ajrumiyya": {
+      "verified_bayts": "aucun",
+      "total_bayts": null,
+      "placeholder_bayts": "tous",
+      "source": "structure uniquement"
+    },
+    "waraqat": {
+      "verified_bayts": "aucun",
+      "total_bayts": null,
+      "placeholder_bayts": "tous",
+      "source": "structure uniquement"
+    },
+    "matn_abi_shuja": {
+      "verified_bayts": "aucun",
+      "total_bayts": null,
+      "placeholder_bayts": "tous",
+      "source": "structure uniquement"
+    }
+  },
+  "completion_guide": "docs/MUTUN_COMPLETION_GUIDE.md",
+  "seed_file": "database/seeds/03_mutun_seed.sql",
+  "next_hash_update": "À recalculer après complétion des placeholders"
+}

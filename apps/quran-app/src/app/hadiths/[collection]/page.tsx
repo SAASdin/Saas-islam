@@ -1,26 +1,27 @@
 // ============================================================
-// hadiths/[collection]/page.tsx — Vue collection de hadiths — Premium dark
-// Fetch réel depuis l'API hadith.gading.dev
-// ⚠️  Texte arabe des hadiths : dir="rtl" lang="ar" OBLIGATOIRES
+// hadiths/[collection]/page.tsx — Livres d'une collection — Clone sunnah.com
+// ⚠️  Texte arabe : dir="rtl" lang="ar" OBLIGATOIRES
+//     Font arabe : var(--font-amiri)
 // ============================================================
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getBook, getCollectionMeta, HADITH_COLLECTIONS } from '@/lib/hadith-api'
 import Navigation from '@/components/Navigation'
+import {
+  getCollectionMeta,
+  getBooks,
+  SUNNAH_COLLECTIONS,
+} from '@/lib/sunnah-api'
 import type { Metadata } from 'next'
 
-// Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
 export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ collection: string }>
-  searchParams: Promise<{ page?: string }>
 }
 
-const HADITHS_PER_PAGE = 20
-
 export async function generateStaticParams() {
-  return HADITH_COLLECTIONS.map((c) => ({ collection: c.id }))
+  return SUNNAH_COLLECTIONS.map((c) => ({ collection: c.id }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -28,40 +29,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const meta = getCollectionMeta(collection)
   if (!meta) return {}
   return {
-    title: `${meta.name} — Hadiths`,
-    description: `${meta.totalHadiths.toLocaleString('fr-FR')} hadiths de ${meta.name} (${meta.nameFr})`,
+    title: `${meta.nameEn} — Livres — NoorApp`,
+    description: `${meta.totalHadith.toLocaleString('fr-FR')} hadiths dans ${meta.nameEn} (${meta.nameFr}). Consultez les livres par chapitre.`,
   }
 }
 
-export const revalidate = 86400
-
-export default async function CollectionPage({ params, searchParams }: Props) {
+export default async function CollectionPage({ params }: Props) {
   const { collection } = await params
-  const { page: pageParam } = await searchParams
 
   const meta = getCollectionMeta(collection)
   if (!meta) notFound()
 
-  const currentPage = Math.max(1, parseInt(pageParam ?? '1') || 1)
-  const startHadith = (currentPage - 1) * HADITHS_PER_PAGE + 1
-  const endHadith = Math.min(startHadith + HADITHS_PER_PAGE - 1, meta.totalHadiths)
-  const totalPages = Math.ceil(meta.totalHadiths / HADITHS_PER_PAGE)
-
-  const bookData = await getBook(collection, `${startHadith}-${endHadith}`)
+  const books = await getBooks(collection)
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
       <Navigation />
 
-      {/* ── En-tête collection ─────────────────────────────── */}
+      {/* ── En-tête collection ────────────────────────────────── */}
       <div
-        className="relative py-10 px-4"
+        className="relative py-10 px-4 overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1a2e 100%)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
-        <div className="max-w-3xl mx-auto">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            backgroundImage: `radial-gradient(circle at 80% 50%, rgba(212,175,55,0.04) 0%, transparent 50%)`,
+          }}
+        />
+
+        <div className="relative max-w-4xl mx-auto">
           <Link
             href="/hadiths"
             className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-amber-400 transition-colors mb-6"
@@ -69,166 +70,173 @@ export default async function CollectionPage({ params, searchParams }: Props) {
             ← Collections
           </Link>
 
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-100 mb-1">
-                {meta.name}
-              </h1>
-              <p className="text-slate-500 text-sm">{meta.nameFr}</p>
-              <p className="text-sm mt-2" style={{ color: '#22c55e' }}>
-                {meta.totalHadiths.toLocaleString('fr-FR')} hadiths au total
+              {/* Nom arabe — ⚠️ SACRÉ */}
+              <p
+                dir="rtl"
+                lang="ar"
+                className="text-3xl mb-2"
+                style={{
+                  fontFamily: 'var(--font-amiri)',
+                  color: '#d4af37',
+                  lineHeight: '2',
+                  textShadow: '0 0 20px rgba(212,175,55,0.2)',
+                }}
+              >
+                {/* ⚠️ Affiché tel quel */}
+                {meta.nameAr}
               </p>
+
+              <h1 className="text-xl font-bold text-slate-100 mb-1">{meta.nameEn}</h1>
+              <p className="text-sm text-slate-500">{meta.nameFr}</p>
+              <p className="text-xs text-slate-600 mt-1">par {meta.authorEn}</p>
+
+              {/* Stats */}
+              <div className="flex items-center gap-5 mt-4">
+                <div className="text-center">
+                  <p className="text-lg font-bold" style={{ color: '#d4af37' }}>
+                    {meta.totalHadith.toLocaleString('fr-FR')}
+                  </p>
+                  <p className="text-xs text-slate-600">Hadiths</p>
+                </div>
+                {books.length > 0 && (
+                  <>
+                    <div className="w-px h-8" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-slate-300">{books.length}</p>
+                      <p className="text-xs text-slate-600">Livres</p>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
-            {/* Nom arabe — ⚠️ SACRÉ */}
-            <div
-              dir="rtl"
-              lang="ar"
-              className="flex-shrink-0"
-              style={{
-                fontFamily: 'var(--font-amiri)',
-                fontSize: '1.8rem',
-                lineHeight: '2',
-                color: '#d4af37',
-                textShadow: '0 0 20px rgba(212,175,55,0.3)',
-              }}
-              aria-label={`Nom arabe : ${meta.nameArabic}`}
-            >
-              {/* ⚠️ Affiché tel quel */}
-              {meta.nameArabic}
-            </div>
-          </div>
-
-          {/* Info page */}
-          <div
-            className="mt-4 inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: '#94a3b8',
-            }}
-          >
-            Page {currentPage} / {totalPages} · Hadiths {startHadith} à {endHadith}
+            {/* Badge Primary */}
+            {meta.isPrimary && (
+              <div
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium"
+                style={{
+                  background: 'rgba(212,175,55,0.08)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  color: '#d4af37',
+                }}
+              >
+                ⭐ Kutub as-Sittah
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      {/* ── Grille des livres ─────────────────────────────────── */}
+      <section className="max-w-4xl mx-auto px-4 py-10">
+        {books.length > 0 ? (
+          <>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-0.5 rounded" style={{ background: '#d4af37' }} />
+              <h2 className="text-sm font-semibold uppercase tracking-widest" style={{ color: '#d4af37' }}>
+                Livres de la collection
+              </h2>
+            </div>
 
-        {/* ── Liste des hadiths ──────────────────────────── */}
-        {bookData && bookData.hadiths.length > 0 ? (
-          <section
-            className="rounded-2xl overflow-hidden"
-            style={{
-              border: '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            {bookData.hadiths.map((hadith, index) => (
-              <Link
-                key={hadith.number}
-                href={`/hadiths/${collection}/${hadith.number}`}
-                className="group block px-5 py-5 transition-all duration-200"
-                style={{
-                  background: index % 2 === 0 ? 'rgba(17,24,39,0.7)' : 'rgba(26,34,53,0.5)',
-                  borderBottom: index < (bookData.hadiths.length - 1) ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                }}
-                aria-label={`Hadith n° ${hadith.number}`}
-              >
-                <div className="flex items-start gap-4">
-                  {/* Numéro du hadith — badge doré */}
-                  <span
-                    className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+            <div className="grid gap-3">
+              {books.map((book, index) => {
+                // Trouver les noms AR et EN du livre
+                const bookEn = book.book.find((b) => b.lang === 'en')
+                const bookAr = book.book.find((b) => b.lang === 'ar')
+                const bookName = bookEn?.name ?? bookAr?.name ?? `Livre ${book.bookNumber}`
+
+                return (
+                  <Link
+                    key={book.bookNumber}
+                    href={`/hadiths/${collection}/books/${book.bookNumber}`}
+                    className="group flex items-center gap-4 p-4 rounded-xl transition-all duration-200"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%)',
-                      border: '1px solid rgba(212,175,55,0.2)',
-                      color: '#d4af37',
+                      background: index % 2 === 0 ? 'rgba(17,24,39,0.7)' : 'rgba(13,26,46,0.5)',
+                      border: '1px solid rgba(255,255,255,0.04)',
                     }}
                   >
-                    {hadith.number}
-                  </span>
-
-                  {/* Aperçu du texte arabe */}
-                  <div className="flex-1 min-w-0">
-                    <p
-                      dir="rtl"
-                      lang="ar"
-                      className="line-clamp-2"
+                    {/* Numéro du livre */}
+                    <span
+                      className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
                       style={{
-                        fontFamily: 'var(--font-amiri)',
-                        fontSize: '1.1rem',
-                        lineHeight: '2',
-                        color: '#e2e8f0',
-                        direction: 'rtl',
-                        textAlign: 'right',
+                        background: 'rgba(212,175,55,0.08)',
+                        border: '1px solid rgba(212,175,55,0.15)',
+                        color: '#d4af37',
                       }}
                     >
-                      {/* ⚠️ Texte sacré — affiché tel quel */}
-                      {hadith.arab}
-                    </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs text-slate-600">
-                        {meta.name} · n° {hadith.number}
+                      {book.bookNumber}
+                    </span>
+
+                    {/* Info livre */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-200 text-sm group-hover:text-white transition-colors truncate">
+                        {bookName}
                       </p>
-                      <span
-                        className="text-xs text-slate-600 group-hover:text-amber-400 transition-colors"
-                      >
-                        Lire → 
-                      </span>
+                      {bookAr && (
+                        <p
+                          dir="rtl"
+                          lang="ar"
+                          className="text-xs mt-0.5 text-right"
+                          style={{
+                            fontFamily: 'var(--font-amiri)',
+                            color: '#94a3b8',
+                            lineHeight: '1.8',
+                          }}
+                        >
+                          {/* ⚠️ Nom arabe — affiché tel quel */}
+                          {bookAr.name}
+                        </p>
+                      )}
                     </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </section>
+
+                    {/* Stats du livre */}
+                    <div className="flex-shrink-0 text-right">
+                      <p className="text-xs text-slate-500">
+                        {book.numberOfHadith} hadiths
+                      </p>
+                      <p className="text-xs text-slate-700 mt-0.5">
+                        {book.hadithStartNumber}–{book.hadithEndNumber}
+                      </p>
+                    </div>
+
+                    <span className="flex-shrink-0 text-xs text-slate-600 group-hover:text-amber-400 transition-colors">
+                      →
+                    </span>
+                  </Link>
+                )
+              })}
+            </div>
+          </>
         ) : (
+          /* Fallback : pas de livres → afficher la liste des hadiths directs */
           <div className="text-center py-16">
             <p className="text-4xl mb-4">📚</p>
-            <p className="text-slate-400">Impossible de charger les hadiths.</p>
-            <p className="text-xs text-slate-600 mt-1">Vérifiez votre connexion ou réessayez plus tard.</p>
+            <p className="text-slate-400 mb-2">Structure non disponible</p>
+            <p className="text-xs text-slate-600 mb-6">
+              Cette collection ne possède pas de découpage par livres.
+            </p>
+            <Link
+              href={`/hadiths/${collection}/1`}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm transition-all"
+              style={{
+                background: 'rgba(212,175,55,0.08)',
+                border: '1px solid rgba(212,175,55,0.2)',
+                color: '#d4af37',
+              }}
+            >
+              Lire le hadith n° 1 →
+            </Link>
           </div>
         )}
+      </section>
 
-        {/* ── Pagination ──────────────────────────────────── */}
-        <nav
-          className="mt-8 flex items-center justify-between gap-3"
-          aria-label="Navigation entre les pages de hadiths"
-        >
-          {currentPage > 1 ? (
-            <Link
-              href={`/hadiths/${collection}?page=${currentPage - 1}`}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#94a3b8',
-              }}
-            >
-              ← Page {currentPage - 1}
-            </Link>
-          ) : <span />}
-
-          <span className="text-xs text-slate-600">
-            Page {currentPage} / {totalPages}
-          </span>
-
-          {currentPage < totalPages ? (
-            <Link
-              href={`/hadiths/${collection}?page=${currentPage + 1}`}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#94a3b8',
-              }}
-            >
-              Page {currentPage + 1} →
-            </Link>
-          ) : <span />}
-        </nav>
-      </div>
-
-      <footer className="text-center py-6 text-xs text-slate-700">
-        <p>Source : api.hadith.gading.dev · Données en lecture seule</p>
+      <footer
+        className="text-center py-6 text-xs text-slate-700 border-t"
+        style={{ borderColor: 'rgba(255,255,255,0.04)' }}
+      >
+        <p>Source : sunnah.com API · Données en lecture seule</p>
       </footer>
     </div>
   )

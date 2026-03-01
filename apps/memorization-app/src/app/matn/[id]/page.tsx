@@ -5,7 +5,6 @@
 
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import StreakBadge from '@/components/memorization/StreakBadge'
 import { getMatnById, getBaytForMatn } from '@/lib/mutun-data'
 import { loadUserData, computeProgress, getTotalDueCount } from '@/lib/storage'
@@ -46,7 +45,7 @@ export default function MatnPage({ params }: Props) {
 
   return (
     <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── En-tête matn ─────────────────────────────────── */}
       <div

@@ -5,7 +5,6 @@
 // ============================================================
 
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import {
   searchHadiths,
   getCollectionMeta,
@@ -35,7 +34,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── En-tête ───────────────────────────────────────────── */}
       <div

@@ -13,7 +13,6 @@ import {
   getBooksByAuthor,
   FEATURED_BOOKS,
 } from '@/lib/library-api'
-import Navigation from '@/components/Navigation'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -64,7 +63,7 @@ export default async function BookPage({ params }: Props) {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ══════════════════════════════════════════════
           HERO LIVRE

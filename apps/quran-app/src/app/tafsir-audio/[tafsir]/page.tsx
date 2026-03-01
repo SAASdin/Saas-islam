@@ -5,7 +5,6 @@
 // ============================================================
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Navigation from '@/components/Navigation'
 import {
   TAFSIR_ONE_BOOKS,
   getTafsirPage,
@@ -48,7 +47,7 @@ export default async function TafsirPage({ params, searchParams }: PageProps) {
   return (
     <>
       {/* Navigation en dehors du layout du lecteur */}
-      <Navigation />
+
 
       {/* Breadcrumb rapide */}
       <div className="fixed top-14 left-0 right-0 z-20 bg-[#0a0f1e]/95 border-b border-white/5 px-4 py-1.5 hidden">

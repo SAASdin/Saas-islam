@@ -6,7 +6,6 @@
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Navigation from '@/components/Navigation'
 import {
   getRandomHadith,
   getCollectionMeta,
@@ -52,7 +51,7 @@ export default async function RandomHadithPage() {
 
   return (
     <div className="min-h-screen pb-12" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── En-tête ───────────────────────────────────────────── */}
       <div

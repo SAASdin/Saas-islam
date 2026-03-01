@@ -9,7 +9,6 @@ import {
   getBooksByCategory,
   getTotalBooksCount,
 } from '@/lib/library-api'
-import Navigation from '@/components/Navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
@@ -51,7 +50,7 @@ export default function BibliothequeHomePage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ══════════════════════════════════════════════
           HERO

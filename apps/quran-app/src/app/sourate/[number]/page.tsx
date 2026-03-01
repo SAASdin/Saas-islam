@@ -14,7 +14,6 @@ import { getSurahWithAyahs, getSurahTranslationFr, getAllSurahs } from '@/lib/ap
 import Basmala from '@/components/quran/Basmala'
 import SurahHeader from '@/components/quran/SurahHeader'
 import AyahCard from '@/components/quran/AyahCard'
-import Navigation from '@/components/Navigation'
 
 // Rendu dynamique — évite le pré-rendu statique (rate limit API en CI/build)
 export const dynamic = 'force-dynamic'
@@ -70,7 +69,7 @@ export default async function SouratePage({ params }: Props) {
 
   return (
     <>
-      <Navigation />
+
       <main className="min-h-screen" style={{ background: '#0a0f1e' }}>
         <div className="max-w-3xl mx-auto px-4 py-8">
 

@@ -9,7 +9,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getHadith, getCollectionMeta, formatHadithRef } from '@/lib/hadith-api'
-import Navigation from '@/components/Navigation'
 import {
   getCollectionMeta,
   getHadith,
@@ -81,7 +80,7 @@ export default async function HadithPage({ params }: Props) {
 
   return (
     <div className="min-h-screen pb-12" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── En-tête ───────────────────────────────────────────── */}
       <div

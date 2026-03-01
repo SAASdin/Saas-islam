@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
   title: {
@@ -26,7 +27,10 @@ export default function RootLayout({
           minHeight:   '100vh',
         }}
       >
-        {children}
+        <Navigation />
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   )

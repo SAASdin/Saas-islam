@@ -6,7 +6,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import SRSReview from '@/components/memorization/SRSReview'
 import { loadUserData, updateCard } from '@/lib/storage'
 import { getDueCards } from '@/lib/srs'
@@ -48,7 +47,7 @@ export default function ReviewPage() {
   if (loading) {
     return (
       <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-        <Navigation />
+
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-4" style={{ borderColor: '#d4af37', borderTopColor: 'transparent' }} />
@@ -64,7 +63,7 @@ export default function ReviewPage() {
   if (done && queue.length === 0) {
     return (
       <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-        <Navigation />
+
         <div className="max-w-lg mx-auto px-4 py-16 text-center">
           <div className="text-6xl mb-4">🌟</div>
           <h1 className="text-2xl font-bold text-slate-100 mb-3">
@@ -92,7 +91,7 @@ export default function ReviewPage() {
   if (done) {
     return (
       <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-        <Navigation />
+
         <div className="max-w-lg mx-auto px-4 py-16 text-center">
           <div className="text-6xl mb-4">✅</div>
           <h1 className="text-2xl font-bold text-slate-100 mb-3">
@@ -139,7 +138,7 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">

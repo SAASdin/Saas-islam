@@ -46,3 +46,42 @@ coverage/
 # Misc
 .vercel
 .turbo
+
+# Secrets et clés
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+.env.*
+!.env.example
+!.env.*.example
+
+# Ollama
+.ollama/
+ollama-blobs/
+*.gguf
+*.bin
+
+# Checkpoints / modèles ML
+checkpoints/
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+
+# GitHub tokens locaux
+.github_token
+*_token
+*.token
+
+# DB locale
+*.sqlite
+*.db
+dump.sql
+*_dump.sql

@@ -4,7 +4,6 @@
 // ============================================================
 
 import { useState, useEffect } from 'react'
-import Navigation from '@/components/Navigation'
 import MatnCard from '@/components/memorization/MatnCard'
 import StreakBadge from '@/components/memorization/StreakBadge'
 import { MUTUN } from '@/lib/mutun-data'
@@ -40,7 +39,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <div

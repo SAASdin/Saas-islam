@@ -5,7 +5,6 @@
 // ============================================================
 
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import {
   getRandomHadith,
   getCollectionMeta,
@@ -71,7 +70,7 @@ export default async function HadithsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section

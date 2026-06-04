@@ -1,40 +1,80 @@
 'use client'
 // ============================================================
-// TopNavbar.tsx — Navigation principale identique Quran.com
+// TopNavbar.tsx — Navigation condensée avec dropdowns
 // ============================================================
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
 
-const NAV_LINKS = [
-  { href: '/',            label: 'Accueil'      },
-  { href: '/surah',       label: 'Coran'        },
-  { href: '/masahif',     label: 'Masahif'      },
-  { href: '/juz/1',       label: 'Juz'          },
-  { href: '/ulum',        label: "'Ulum"        },
-  { href: '/ma3ajim',     label: 'Maʿājim'      },
-  { href: '/search',      label: 'Recherche'    },
-  { href: '/radio',       label: 'Radio'        },
-  { href: '/reciters',    label: 'Récitateurs'  },
-  { href: '/plan',        label: 'Plan'         },
-  { href: '/progress',    label: 'Progression'  },
-  { href: '/memorize',    label: 'Mémoriser'    },
-  { href: '/hadiths',       label: 'Hadiths'      },
-  { href: '/priere',        label: 'Prière'       },
-  { href: '/tafsir-audio',  label: 'Tafsir 🎧'   },
+type NavItem = { href: string; label: string }
+type NavGroup = { label: string; icon: string; items: NavItem[] }
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: 'Coran',
+    icon: '📖',
+    items: [
+      { href: '/surah',     label: 'Sourates'  },
+      { href: '/masahif',   label: 'Masahif'   },
+      { href: '/juz/1',     label: 'Juz'       },
+      { href: '/ulum',      label: "ʿUlūm"     },
+      { href: '/ma3ajim',   label: 'Maʿājim'   },
+    ],
+  },
+  {
+    label: 'Écoute',
+    icon: '🎧',
+    items: [
+      { href: '/radio',        label: 'Radio'         },
+      { href: '/reciters',     label: 'Récitateurs'   },
+      { href: '/tafsir-audio', label: 'Tafsir audio'  },
+    ],
+  },
+  {
+    label: 'Références',
+    icon: '📚',
+    items: [
+      { href: '/hadiths',      label: 'Hadiths'       },
+      { href: '/bibliotheque', label: 'Bibliothèque'  },
+      { href: '/fatwas/ask',   label: 'Fatwas AI'     },
+    ],
+  },
+  {
+    label: 'Perso',
+    icon: '🌱',
+    items: [
+      { href: '/priere',    label: 'Prière'      },
+      { href: '/plan',      label: 'Plan'        },
+      { href: '/progress',  label: 'Progression' },
+      { href: '/memorize',  label: 'Mémoriser'   },
+    ],
+  },
 ]
 
 export default function TopNavbar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchVal, setSearchVal] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
+  const navRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus()
   }, [searchOpen])
+
+  // Ferme le dropdown si clic en dehors
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenGroup(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -45,9 +85,14 @@ export default function TopNavbar() {
     }
   }
 
-  function isActive(href: string) {
-    if (href === '/') return pathname === '/'
-    return pathname.startsWith(href)
+  function isGroupActive(group: NavGroup) {
+    return group.items.some(({ href }) =>
+      href === '/' ? pathname === '/' : pathname.startsWith(href)
+    )
+  }
+
+  function toggleGroup(label: string) {
+    setOpenGroup(prev => (prev === label ? null : label))
   }
 
   return (
@@ -56,34 +101,65 @@ export default function TopNavbar() {
         <div className="max-w-7xl mx-auto h-full flex items-center px-4 gap-3">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0 group">
+          <Link href="/" className="flex items-center gap-2 shrink-0 group" onClick={() => setOpenGroup(null)}>
             <span className="text-2xl text-emerald-400 font-bold leading-none arabic-text" dir="rtl" lang="ar">نور</span>
             <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors hidden sm:block">NoorApp</span>
           </Link>
 
-          {/* Nav desktop */}
-          <nav className="hidden lg:flex items-center gap-0.5 flex-1 overflow-hidden">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors ${
-                  isActive(href)
-                    ? 'bg-emerald-500/15 text-emerald-400 font-medium'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
+          {/* Nav desktop avec dropdowns */}
+          <nav ref={navRef} className="hidden lg:flex items-center gap-1 flex-1">
+            {NAV_GROUPS.map((group) => {
+              const active = isGroupActive(group)
+              const isOpen = openGroup === group.label
+              return (
+                <div key={group.label} className="relative">
+                  <button
+                    onClick={() => toggleGroup(group.label)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors ${
+                      active || isOpen
+                        ? 'bg-emerald-500/15 text-emerald-400 font-medium'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>{group.icon}</span>
+                    <span>{group.label}</span>
+                    <svg
+                      className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown */}
+                  {isOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-44 bg-[#0d1426] border border-white/10 rounded-lg shadow-xl py-1 z-50">
+                      {group.items.map(({ href, label }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setOpenGroup(null)}
+                          className={`block px-4 py-2 text-sm transition-colors ${
+                            pathname.startsWith(href) && href !== '/'
+                              ? 'text-emerald-400 bg-emerald-500/10'
+                              : 'text-slate-300 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </nav>
 
-          {/* Spacer mobile */}
           <div className="flex-1 lg:flex-none" />
 
           {/* Actions */}
           <div className="flex items-center gap-1">
-            {/* Search bar */}
+            {/* Search */}
             {searchOpen ? (
               <form onSubmit={handleSearch} className="flex items-center">
                 <input
@@ -126,7 +202,7 @@ export default function TopNavbar() {
               </svg>
             </Link>
 
-            {/* Hamburger mobile/tablet */}
+            {/* Hamburger mobile */}
             <button
               className="lg:hidden p-2 text-slate-400 hover:text-white transition-colors"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -144,23 +220,42 @@ export default function TopNavbar() {
           </div>
         </div>
 
-        {/* Menu mobile dropdown */}
+        {/* Menu mobile — groupes dépliables */}
         {menuOpen && (
-          <div className="lg:hidden absolute top-14 left-0 right-0 bg-[#0a0f1e] border-b border-white/10 py-2 shadow-xl">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                className={`block px-5 py-2.5 text-sm transition-colors ${
-                  isActive(href)
-                    ? 'text-emerald-400 bg-emerald-500/10'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {label}
-              </Link>
+          <div className="lg:hidden absolute top-14 left-0 right-0 bg-[#0a0f1e] border-b border-white/10 py-2 shadow-xl max-h-[80vh] overflow-y-auto">
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label}>
+                {/* Séparateur de groupe */}
+                <div className="px-5 pt-3 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  {group.icon} {group.label}
+                </div>
+                {group.items.map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block px-8 py-2 text-sm transition-colors ${
+                      pathname.startsWith(href) && href !== '/'
+                        ? 'text-emerald-400 bg-emerald-500/10'
+                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
             ))}
+            {/* Settings dans mobile */}
+            <div className="px-5 pt-3 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">⚙️ Compte</div>
+            <Link
+              href="/settings"
+              onClick={() => setMenuOpen(false)}
+              className={`block px-8 py-2 text-sm transition-colors ${
+                pathname === '/settings' ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Paramètres
+            </Link>
           </div>
         )}
       </header>

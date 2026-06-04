@@ -6,7 +6,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import Navigation from '@/components/Navigation'
 import { TAFSIR_ONE_BOOKS, TAFSIR_ONE_BOOK_KEYS, getCoverUrl } from '@/lib/tafsir-one-api'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
 export default function TafsirAudioPage() {
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white">
-      <Navigation />
+
 
       <main className="max-w-6xl mx-auto px-4 pt-24 pb-16">
         {/* ── Header ── */}

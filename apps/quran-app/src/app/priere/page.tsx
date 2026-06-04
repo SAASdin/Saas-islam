@@ -6,7 +6,6 @@
 
 import { getPrayerTimesByCity, formatPrayers, formatHijriDate } from '@/lib/prayer-api'
 import PrayerCountdown from '@/components/prayer/PrayerCountdown'
-import Navigation from '@/components/Navigation'
 import type { Metadata } from 'next'
 
 // Rendu dynamique — évite le pré-rendu statique qui sature l'API externe en CI/build
@@ -42,7 +41,7 @@ export default async function PriereHomePage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section

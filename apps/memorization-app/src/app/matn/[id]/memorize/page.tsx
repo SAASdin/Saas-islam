@@ -7,7 +7,6 @@
 
 import { useState, useEffect, use, useCallback } from 'react'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import { getMatnById, getBaytForMatn } from '@/lib/mutun-data'
 import { loadUserData, updateCard } from '@/lib/storage'
 import { createCard, applyRating } from '@/lib/srs'
@@ -101,7 +100,7 @@ export default function MemorizePage({ params }: Props) {
 
     return (
       <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-        <Navigation />
+
         <div className="max-w-lg mx-auto px-4 py-12 text-center">
           <div className="text-6xl mb-4">
             {success === total ? '🏆' : success > total / 2 ? '⭐' : '💪'}
@@ -163,7 +162,7 @@ export default function MemorizePage({ params }: Props) {
 
   return (
     <div className="min-h-screen pb-20" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       <div className="max-w-lg mx-auto px-4 py-6">
 

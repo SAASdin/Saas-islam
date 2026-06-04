@@ -6,7 +6,6 @@
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Navigation from '@/components/Navigation'
 import {
   getCollectionMeta,
   getBooks,
@@ -70,7 +69,7 @@ export default async function BookPage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0f1e' }}>
-      <Navigation />
+
 
       {/* ── En-tête ───────────────────────────────────────────── */}
       <div

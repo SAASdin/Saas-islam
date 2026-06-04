@@ -34,6 +34,9 @@ export default function Header() {
             <Link href="/search" className="px-3 py-1.5 rounded hover:bg-white/10 transition-colors">
               Recherche
             </Link>
+            <Link href="/livres" className="px-3 py-1.5 rounded hover:bg-white/10 transition-colors flex items-center gap-1">
+              <span>📚</span> Livres à fournir
+            </Link>
           </nav>
 
           {/* Bouton menu mobile */}
@@ -63,6 +66,9 @@ export default function Header() {
               </Link>
               <Link href="/search" className="px-3 py-2 rounded hover:bg-white/10" onClick={() => setMenuOpen(false)}>
                 Recherche
+              </Link>
+              <Link href="/livres" className="px-3 py-2 rounded hover:bg-white/10 flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+                <span>📚</span> Livres à fournir
               </Link>
             </nav>
           </div>
